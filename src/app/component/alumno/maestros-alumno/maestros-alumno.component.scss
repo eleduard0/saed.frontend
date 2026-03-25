@@ -1,0 +1,64 @@
+.loading-indicator {
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  .maestros-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .maestros-table th, .maestros-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .maestros-table th {
+    background-color: #f4f4f4;
+  }
+  
+  input[type="checkbox"] {
+    transform: scale(1.5); /* Aumenta el tamaño del checkbox */
+    margin-left: 10px; /* Espaciado a la izquierda si lo necesitas */
+    cursor: pointer; /* Cambiar el cursor a una mano al pasar sobre el checkbox */
+  }
+  
+  /* Cambiar el color cuando el checkbox está marcado */
+  input[type="checkbox"]:checked {
+    background-color: #0c9883;  /* Cambiar el color de fondo a verde (cuando está marcado) */
+    border-color: #0c9883; /* Cambiar el color del borde */
+  }
+  
+  /* Cambiar el color del borde cuando el checkbox está marcado */
+  input[type="checkbox"]:checked + label {
+    color: #0c9883;  /* Cambiar el color del texto al color verde cuando está marcado */
+  }
+  
+  .no-data {
+    text-align: center;
+    margin: 20px 0;
+    font-weight: bold;
+  }
+
+  /* Agrandar el checkbox */
+input[type="checkbox"] {
+  transform: scale(1.5); /* Aumentar el tamaño del checkbox */
+  margin-left: 10px; /* Espaciado a la izquierda si lo necesitas */
+  border-color: #0c9883;
+}
+
+  
+  /* Estilo para el botón "Entrar" */
+.p-button-rounded {
+  background-color: #0c9883 !important; /* Color personalizado */
+  border-radius: 05px !important; /* Redondear los bordes */
+  padding: 10px 20px; /* Espaciado dentro del botón */
+  color: white !important; /* Texto blanco */
+  border: none !important; /* Eliminar el borde predeterminado */
+}
+
+.p-button-rounded:hover {
+  background-color: #07876d !important; /* Color más oscuro al pasar el mouse */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave al pasar el mouse */
+}

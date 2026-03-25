@@ -1,0 +1,68 @@
+<button pButton (click)="salir()" class="p-button-rounded p-button-success custom-button" >Volver</button>
+
+<div class="container">
+  <h2>Selecciona el emoji que ref                                                                                                                                                                                                                                                                                                                                        mpeño del docente según la siguiente escala:</h2>
+  <ul class="inline-list">
+    <li>🌟 Siempre</li>
+    <li>😊 Casi siempre</li>
+    <li>😐 Regularmente</li>
+    <li>😕 Pocas veces</li>
+    <li>❌ Nunca</li>
+  </ul>
+
+  <div class="teacher-info">
+    <p><strong>Profesor:</strong> {{ profesorNombre }}</p>
+    <p><strong>Materia:</strong> {{ materiaNombre }}</p>
+  </div>
+
+  <div *ngFor="let categoria of categorias">
+    <h3 class="Colorfont">{{ categoria.nombre }}</h3>
+
+    <!-- Lista de preguntas agrupadas por categoría -->
+    <div *ngFor="let pregunta of obtenerPreguntasPorCategoria(categoria.id)" class="question-row">
+      <p class="question-text" *ngIf="pregunta.tipo">{{ pregunta.texto }}</p>
+      
+      <!-- Select para preguntas con opciones (tipo = true) -->
+      <select
+        *ngIf="pregunta.tipo"
+        [(ngModel)]="selectedOption[pregunta.id]"
+        (change)="onOptionChange(pregunta.id, selectedOption[pregunta.id])"
+        class="custom-select">
+        <option disabled="false">Seleccione una opción</option>
+        <option *ngFor="let opcion of opciones" [value]="opcion.id">
+          {{ opcion.opcion }}
+        </option>
+      </select>
+
+
+      <!-- Tpreguntas de tipo false -->
+         <p  *ngIf="!pregunta.tipo">{{ pregunta.texto }}</p>
+
+    
+      <!-- Textarea para preguntas abiertas (tipo = false) -->
+    
+       
+    </div>
+    <div *ngFor="let pregunta of obtenerPreguntasFalsas()"  style="display: flex;align-items: center;">
+     <textarea
+        *ngIf="!pregunta.tipo"
+        rows="3"
+        cols="100"
+        [(ngModel)]="selectedText[pregunta.id]"
+        (ngModelChange)="onTextChange(pregunta.id, selectedText[pregunta.id])"  
+        pInputTextarea
+        [autoResize]="true"
+        style="resize: none; border-color: gray;"
+        placeholder="Escriba su respuesta aquí">
+      </textarea>
+  </div>
+
+  <!-- Botón para enviar respuestas -->
+  <div class="submit-button">
+    <button
+      class="btn button-spacing"
+      (click)="enviarRespuestas()">
+      Enviar
+    </button>
+  </div>
+</div>

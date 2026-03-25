@@ -1,0 +1,143 @@
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 70vh;
+    padding: 0; /* Eliminar padding */
+}
+
+
+
+
+.header {
+    text-align: left;
+    margin-bottom: 20px;
+    width: 100%;
+}
+.header h2 {
+    color: #000;
+    
+}
+
+.card-header-text {
+    font-size: 30px; 
+    font-weight: bold;
+    color: #01907e;
+    text-align: center;
+    margin: 0;
+    padding-bottom: 15px; 
+    border-bottom: 1px solid #e0e0e0;
+}
+
+
+
+.outer-card {
+    background-color: white;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    width: 95%; /* Mantener el ancho incrementado */
+    max-width: 1200px; /* Limitar el ancho máximo */
+    height: 10%; /* Aumentar la altura */
+    min-height: 590px; /* Establecer una altura mínima para garantizar que siempre sea alta */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+.card-content {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 800px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    width: 40%;
+}
+
+.welcome-card {
+    width: 100%; 
+    padding: 15px; 
+    background-color: white;
+}
+
+.custom-button {
+    background-color: #01907e;
+    border-color: #01907e;
+    border-radius: 10px;
+    display: flex;
+    margin: 0 auto;
+    padding: 10px 20px;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Media Queries para dispositivos móviles */
+@media (max-width: 768px) {
+    .container {
+        padding: 0; /* Reducir padding en pantallas pequeñas */
+    }
+    .card-header-text {
+        font-size: 24px; /* Reducir el tamaño del texto en pantallas más pequeñas */
+    }
+
+    .outer-card {
+        width: 90%; /* Aumentar el ancho para móviles */
+        height: auto; /* Ajustar la altura para el contenido */
+        padding: 15px; /* Reducir el padding en dispositivos pequeños */
+    }
+
+    .card-content {
+        width: 90%; /* Ajustar el ancho para móviles */
+        padding: 15px; /* Reducir el padding */
+    }
+
+    .custom-button {
+        padding: 10px 15px; /* Ajustar el tamaño del botón */
+    }
+}
+
+/* Media Queries para pantallas muy pequeñas (teléfonos más chicos) */
+@media (max-width: 480px) {
+    .card-header-text {
+        font-size: 20px; /* Reducir más el tamaño del texto */
+    }
+
+    .outer-card {
+        width: 100%; /* Ocupar todo el ancho disponible */
+        padding: 10px; /* Reducir el padding */
+    }
+
+    .card-content {
+        width: 100%; /* Asegurar que ocupe todo el ancho en pantallas pequeñas */
+        padding: 10px; /* Reducir padding para mejor ajuste */
+    }
+
+    .custom-button {
+        padding: 8px 12px; /* Ajustar el tamaño del botón en pantallas más pequeñas */
+    }
+}
+.center-text {
+    text-align: center;
+    color: #000;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
