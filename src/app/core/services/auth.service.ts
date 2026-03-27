@@ -75,23 +75,23 @@ export class AuthService {
   // Login Admin  →  POST /auth/admin/login
   // El backend devuelve solo el token como string
   // ─────────────────────────────────────────────
-  private loginAdmin(username: string, password: string): Observable<string> {
-    return this.http
-      .post(`${environment.apiUrl}/admin/auth/login`, { username, password }, { responseType: 'text' })
-      .pipe(
-        tap((token) => {
-          const sesion: UsuarioSesion = {
-            username,
-            rol:   'Admin',
-            token,
-          };
-          this.guardarSesion(sesion);
-        }),
-        catchError((err) =>
-          throwError(() => new Error(err?.error ?? 'Credenciales incorrectas'))
-        )
-      );
-  }
+private loginAdmin(username: string, password: string): Observable<any> {
+  return this.http
+    .post<{ token: string }>(`${environment.apiUrl}/admin/auth/login`, { username, password })
+    .pipe(
+      tap((res) => {
+        const sesion: UsuarioSesion = {
+          username,
+          rol: 'Admin',
+          token: res.token,  // ← extrae del objeto
+        };
+        this.guardarSesion(sesion);
+      }),
+      catchError((err) =>
+        throwError(() => new Error(err?.error?.message ?? 'Credenciales incorrectas'))
+      )
+    );
+}
 
   // ─────────────────────────────────────────────
   // Helpers de sesión

@@ -60,11 +60,11 @@ export class LoginComponent implements OnInit {
 
     switch (sesion.rol) {
       case 'Admin':
-        this.router.navigate(['/admin/dashboard']);
+        this.router.navigate(['/dashboard']);
         break;
       case 'Alumno':
       default:
-        this.router.navigate(['/alumno/dashboard']);
+        this.router.navigate(['/component/inicioalumno']);
         break;
     }
   }

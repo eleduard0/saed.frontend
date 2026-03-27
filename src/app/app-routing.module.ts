@@ -2,11 +2,10 @@ import { Routes } from '@angular/router';
 import { FullComponent } from './pages/layouts/full/full.component';
 import { LoginComponent } from './pages/auth/login/login.component';
 import { LogoutComponent } from './pages/auth/logout/logout.component';
-import { AuthGuard } from './guards/auth.guard';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
+import { AuthGuard } from './guards/auth.guard';
 
-// Importa tu componente de preguntas
-import { PreguntasComponent } from './component/alumno/preguntas/preguntas.component';  // la ruta a preguntas
+import { PreguntasComponent } from './component/alumno/preguntas/preguntas.component';
 
 export const Approutes: Routes = [
   {
@@ -14,45 +13,51 @@ export const Approutes: Routes = [
     component: LoginComponent,
   },
   {
-    path: 'logout',
-    component: LogoutComponent,
-    canActivate: [AuthGuard],
+    path: '404',
+    component: NotFoundComponent,
   },
+
   {
     path: '',
     component: FullComponent,
+    canActivate: [AuthGuard],  
     children: [
-      { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full',
+      },
+
       {
         path: 'dashboard',
         loadChildren: () =>
           import('./dashboard/dashboard.module').then((m) => m.DashboardModule),
-        canActivate: [AuthGuard],
-        data: { roles: ['ADMIN'] }
+        data: { roles: ['Admin'] },
       },
+
       {
         path: 'component',
         loadChildren: () =>
           import('./component/component.module').then((m) => m.ComponentsModule),
-        canActivate: [AuthGuard],
-        data: { roles: ['ADMIN', 'STUDENT','TEACHER'] }
+        data: { roles: ['Admin', 'Alumno'] },
       },
 
-      // la ruta para preguntas
       {
-        path: 'preguntas/:nombreMaestro/:grupo/:materia',
+        path: 'preguntas/:grupo/:materia',
         component: PreguntasComponent,
-        canActivate: [AuthGuard], // Aplicar guard si es necesario
-        data: { roles: ['ADMIN', 'STUDENT'] } // 
-      }
+        data: { roles: ['Admin', 'Alumno'] },
+      },
     ],
   },
+
+  {
+    path: 'logout',
+    component: LogoutComponent,
+    canActivate: [AuthGuard],
+  },
+
   {
     path: '**',
-    redirectTo: '/',
-  },
-  {
-    path: '404',
     component: NotFoundComponent,
   },
 ];
