@@ -1,54 +1,47 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
-import { AuthService } from '../services/auth.service';
-import { FunctionsService } from '../services/functions.service';
-import { MessageService } from 'primeng/api';
-import { Observable } from 'rxjs';
+import {
+  CanActivate,
+  ActivatedRouteSnapshot,
+  Router,
+  UrlTree,
+} from '@angular/router';
+import { AuthService } from '../core/services/auth.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthGuard implements CanActivate {
+  constructor(private authService: AuthService, private router: Router) {}
 
-  constructor(
-    public auth: AuthService,
-    public router: Router,
-    public fun: FunctionsService,
-    private message: MessageService
-  ) {}
-
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | Observable<boolean> {
-    if (!this.auth.is_login) {
-      this.router.navigate(['login'], { queryParams: { returnUrl: state.url } });
-      return false;
+  canActivate(route: ActivatedRouteSnapshot): boolean | UrlTree {
+    // 1. Sin sesión → al login
+    if (!this.authService.estaAutenticado()) {
+      return this.router.createUrlTree(['/login']);
     }
 
-    const requiredRoles = route.data['roles'] as string[];
-    const userRole = this.auth.getUserRole({ access_token: this.auth.getAccessToken() });
+    const sesion        = this.authService.getSesion();
+    const rolActual     = sesion?.rol;
+    const rolesPermitidos = route.data['roles'] as string[] | undefined;
 
-    if (!userRole || (requiredRoles && !requiredRoles.includes(userRole))) {
-      this.message.add({ severity: 'error', summary: 'Acceso Denegado', detail: 'No tienes permisos para acceder a esta página.' });
-
-      // Retraso breve para mostrar el mensaje antes de redirigir
-      setTimeout(() => {
-        switch (userRole) {
-          case 'TEACHER':
-            this.router.navigateByUrl('/component/maestro');
-            break;
-          case 'ADMIN':
-            this.router.navigateByUrl('/dashboard');
-            break;
-          case 'STUDENT':
-            this.router.navigateByUrl('/component/inicioalumno');
-            break;
-          default:
-            this.router.navigateByUrl('/login'); // Página por defecto
-        }
-      }, 1500);  // Espera de 1.5 segundos para mostrar el mensaje
-
-      return false;
+    // 2. Si la ruta requiere roles, verificar que el usuario los tenga
+    if (rolesPermitidos && rolesPermitidos.length > 0) {
+      const tieneAcceso = rolesPermitidos.includes(rolActual ?? '');
+      if (!tieneAcceso) {
+        return this.dashboardPorRol(rolActual);
+      }
     }
 
     return true;
+  }
+
+  private dashboardPorRol(rol?: string): UrlTree {
+    switch (rol) {
+      case 'Admin':
+        return this.router.createUrlTree(['/dashboard']);
+      case 'Alumno':
+        return this.router.createUrlTree(['/component/inicioalumno']);
+      default:
+        return this.router.createUrlTree(['/login']);
+    }
   }
 }

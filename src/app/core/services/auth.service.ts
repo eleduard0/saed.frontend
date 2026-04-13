@@ -17,9 +17,9 @@ export class AuthService {
   // Expresión regular para detectar matrícula (ej: L12345678) o número de empleado (solo dígitos)
   // Ajusta según el formato real de tu institución
   private readonly MATRICULA_REGEX = /^[a-zA-Z]\d{8,}$/;
-  private readonly EMPLEADO_REGEX  = /^\d{6,}$/;
+  private readonly EMPLEADO_REGEX = /^\d{6,}$/;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) { }
 
   /**
    * Determina si la credencial ingresada pertenece a un usuario
@@ -59,9 +59,9 @@ export class AuthService {
         tap((res) => {
           const sesion: UsuarioSesion = {
             username: res.matricula,
-            nombre:   res.nombre,
-            rol:      res.rol as 'Alumno',
-            token:    res.token,
+            nombre: res.nombre,
+            rol: res.rol as 'Alumno',
+            token: res.token,
           };
           this.guardarSesion(sesion);
         }),
@@ -82,7 +82,7 @@ export class AuthService {
         tap((token) => {
           const sesion: UsuarioSesion = {
             username,
-            rol:   'Admin',
+            rol: 'Admin',
             token,
           };
           this.guardarSesion(sesion);
@@ -101,8 +101,13 @@ export class AuthService {
   }
 
   getSesion(): UsuarioSesion | null {
-    const raw = localStorage.getItem(this.SESSION_KEY);
-    return raw ? (JSON.parse(raw) as UsuarioSesion) : null;
+    try {
+      const raw = localStorage.getItem(this.SESSION_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      localStorage.removeItem(this.SESSION_KEY); // limpiar si está corrupto
+      return null;
+    }
   }
 
   getToken(): string | null {
@@ -110,7 +115,11 @@ export class AuthService {
   }
 
   estaAutenticado(): boolean {
-    return !!this.getToken();
+    try {
+      return !!this.getToken();
+    } catch {
+      return false;
+    }
   }
 
   logout(): void {

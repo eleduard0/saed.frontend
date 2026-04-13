@@ -1,0 +1,65 @@
+<div class="container mt-4">
+
+  <!-- PROCESO ACTIVO -->
+  <div class="card shadow mb-4" *ngIf="procesoActivo">
+    <div class="card-body">
+      <h4 class="card-title">Proceso Activo</h4>
+      <p><strong>Nombre:</strong> {{ procesoActivo.nombre }}</p>
+      <p><strong>Año:</strong> {{ procesoActivo.anio }}</p>
+      <p><strong>Periodo:</strong> {{ periodoLabel(procesoActivo.periodo) }}</p>
+      <p><strong>Estado:</strong>
+        <span class="badge bg-success">Activo</span>
+      </p>
+      <button class="btn btn-danger" (click)="cerrarProceso(procesoActivo.id)">
+        Cerrar Proceso
+      </button>
+    </div>
+  </div>
+
+  <!-- SIN PROCESO -->
+  <div class="alert alert-warning" *ngIf="!procesoActivo && !loading">
+    No hay proceso activo
+  </div>
+
+  <!-- TARJETAS DE GESTIÓN -->
+  <div class="row g-4">
+
+    <!-- Instrumentos -->
+    <div class="col-12 col-md-6">
+      <div class="card shadow h-100">
+        <div class="card-body d-flex align-items-start gap-3">
+          <div class="gestion-icon bg-teal-soft">
+            <i class="bi bi-clipboard-check fs-3 text-teal"></i>
+          </div>
+          <div class="flex-grow-1">
+            <h5 class="card-title mb-1">Instrumentos</h5>
+            <p class="text-muted small mb-3">Administrar los instrumentos de evaluación</p>
+            <a routerLink="/instrumentos" class="btn btn-teal btn-sm">
+              Gestionar Instrumentos
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Procesos -->
+    <div class="col-12 col-md-6">
+      <div class="card shadow h-100">
+        <div class="card-body d-flex align-items-start gap-3">
+          <div class="gestion-icon bg-teal-soft">
+            <i class="bi bi-diagram-3 fs-3 text-teal"></i>
+          </div>
+          <div class="flex-grow-1">
+            <h5 class="card-title mb-1">Procesos</h5>
+            <p class="text-muted small mb-3">Administrar los procesos de evaluación</p>
+            <a routerLink="/procesos" class="btn btn-teal btn-sm">
+              Gestionar Procesos
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

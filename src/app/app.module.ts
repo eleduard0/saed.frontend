@@ -28,6 +28,8 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { Dropdown, DropdownModule } from 'primeng/dropdown';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { DashboardComponent } from './features/admin/dashboard/dashboard.component';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 
 @NgModule({
@@ -37,10 +39,12 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
     LoginComponent,
     LogoutComponent,
     NotFoundComponent,
+    
  
   ],
   imports: [
     DropdownModule,
+    //DashboardComponent,
     CommonModule,
     BrowserModule,
     BrowserAnimationsModule,
@@ -73,7 +77,8 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
     },
     DatePipe,
     UpperCasePipe,
-    MessageService
+    MessageService,
+    provideAnimationsAsync()
   ],
   bootstrap: [AppComponent]
 })

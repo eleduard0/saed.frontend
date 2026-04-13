@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service'; // Ajusta la ruta relativa
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -10,7 +10,7 @@ import { AuthService } from '../../../core/services/auth.service'; // Ajusta la 
 })
 export class LoginComponent implements OnInit {
   form!: FormGroup;
-  loading = false;
+  loading  = false;
   errorMsg = '';
 
   constructor(
@@ -20,7 +20,7 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Si ya tiene sesión activa, redirigir al dashboard
+    // Si ya hay sesión activa no tiene caso mostrar el login
     if (this.authService.estaAutenticado()) {
       this.redirigirSegunRol();
     }
@@ -60,16 +60,16 @@ export class LoginComponent implements OnInit {
 
     switch (sesion.rol) {
       case 'Admin':
-        this.router.navigate(['/admin/dashboard']);
+        this.router.navigate(['/dashboard']);
         break;
       case 'Alumno':
-      default:
-        this.router.navigate(['/alumno/dashboard']);
+        this.router.navigate(['/component/inicioalumno']);
         break;
+      default:
+        this.router.navigate(['/login']);
     }
   }
 
-  // Helpers para el template
   get credencialInvalid(): boolean {
     const c = this.form.get('credencial');
     return !!(c?.invalid && c?.touched);
