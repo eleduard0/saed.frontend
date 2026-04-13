@@ -5,7 +5,7 @@ import {
   Router,
   UrlTree,
 } from '@angular/router';
-import { AuthService } from '../core/services/auth.service';
+import { AuthService } from '../core/services/auth.service'; 
 
 @Injectable({
   providedIn: 'root',
@@ -19,14 +19,16 @@ export class AuthGuard implements CanActivate {
       return this.router.createUrlTree(['/login']);
     }
 
-    const sesion        = this.authService.getSesion();
-    const rolActual     = sesion?.rol;
+    const sesion    = this.authService.getSesion();
+    const rolActual = sesion?.rol;
+
+    // 2. Verificar rol requerido por la ruta
     const rolesPermitidos = route.data['roles'] as string[] | undefined;
 
-    // 2. Si la ruta requiere roles, verificar que el usuario los tenga
     if (rolesPermitidos && rolesPermitidos.length > 0) {
       const tieneAcceso = rolesPermitidos.includes(rolActual ?? '');
       if (!tieneAcceso) {
+        // Tiene sesión pero su rol no tiene acceso → redirigir a su dashboard
         return this.dashboardPorRol(rolActual);
       }
     }
@@ -37,7 +39,7 @@ export class AuthGuard implements CanActivate {
   private dashboardPorRol(rol?: string): UrlTree {
     switch (rol) {
       case 'Admin':
-        return this.router.createUrlTree(['/dashboard']);
+        return this.router.createUrlTree(['/dashboard']); 
       case 'Alumno':
         return this.router.createUrlTree(['/component/inicioalumno']);
       default:

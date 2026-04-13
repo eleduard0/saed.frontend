@@ -21,49 +21,49 @@ export const ComponentsRoutes: Routes = [
 				path: 'users',
 				component: UsersComponent,
 				canActivate: [AuthGuard],
-				data: { roles: ['ADMIN'] }
+				data: { roles: ['Admin'] }
 			},
 			{
 				path: 'estatus',
 				component: EstatusComponent,
 				canActivate: [AuthGuard],
-				data: { roles: ['ADMIN'] }
+				data: { roles: ['Admin'] }
 			},
 			{
 				path: 'procesos',
 				component: ProcesosComponent,
 				canActivate: [AuthGuard],
-				data: { roles: ['ADMIN'] }
+				data: { roles: ['Admin'] }
 			},
 			{
 				path: 'resultados',
 				component: ResultadosComponent,
 				canActivate: [AuthGuard],
-				data: { roles: ['ADMIN'] }
+				data: { roles: ['Admin'] }
 			},
 			{
 				path: 'instrumentos',
 				component: InstrumentosComponent,
 				canActivate: [AuthGuard],
-				data: { roles: ['ADMIN'] }
+				data: { roles: ['Admin'] }
 			},
 			{
 				path: 'categorias',
 				component: CategoriasComponent,
 				canActivate: [AuthGuard],
-				data: { roles: ['ADMIN'] }
+				data: { roles: ['Admin'] }
 			},
 			{
 				path: 'preguntasAdmin',
 				component: PreguntasAdminComponent,
 				canActivate: [AuthGuard],
-				data: { roles: ['ADMIN'] }
+				data: { roles: ['Admin'] }
 			},
 			{
 				path: 'opciones',
 				component: OpcionesComponent,
 				canActivate: [AuthGuard],
-				data: { roles: ['ADMIN'] }
+				data: { roles: ['Admin'] }
 			},
 			{
 				path: 'maestro',
@@ -77,19 +77,19 @@ export const ComponentsRoutes: Routes = [
 				path: 'inicioalumno',
 				component: InicioalumnoComponent,
 				canActivate: [AuthGuard],
-				data: { roles: ['ADMIN','STUDENT']}
+				data: { roles: ['Admin','Alumno']}
 			},
 			{
 				path: 'maestros-alumno',
 				component: MaestrosAlumnoComponent,
 				canActivate: [AuthGuard],
-				data: { roles: ['ADMIN','STUDENT']}
+				data: { roles: ['Admin','Alumno']}
 			},
 			{
 				path: 'preguntas', 
 				component: PreguntasComponent,
 				canActivate: [AuthGuard],
-				data: { roles: ['ADMIN', 'STUDENT'] }
+				data: { roles: ['Admin', 'Alumno'] }
 			}
 		]
 	}

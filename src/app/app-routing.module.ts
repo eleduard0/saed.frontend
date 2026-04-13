@@ -68,13 +68,7 @@ export const Approutes: Routes = [
         canActivate: [AuthGuard],
         data: { roles: ['Admin', 'Alumno'] },
       },
-      {
-        path: '/component/inicioalumno',
-        loadChildren: () =>
-          import('./component/alumno/inicioalumno/inicioalumno.component').then((m) => m.InicioalumnoComponent),
-        canActivate: [AuthGuard],
-        data: { roles: ['Alumno'] },
-      },
+
 
       // Evaluación docente
       {
