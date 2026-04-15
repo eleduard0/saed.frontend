@@ -63,7 +63,7 @@ export class LoginComponent implements OnInit {
         this.router.navigate(['/dashboard']);
         break;
       case 'Alumno':
-        this.router.navigate(['/component/inicioalumno']);
+        this.router.navigate(['/inicio-alumno']);
         break;
       default:
         this.router.navigate(['/login']);

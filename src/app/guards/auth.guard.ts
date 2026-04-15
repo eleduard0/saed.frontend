@@ -41,7 +41,7 @@ export class AuthGuard implements CanActivate {
       case 'Admin':
         return this.router.createUrlTree(['/dashboard']); 
       case 'Alumno':
-        return this.router.createUrlTree(['/component/inicioalumno']);
+        return this.router.createUrlTree(['/inicio-alumno']);
       default:
         return this.router.createUrlTree(['/login']);
     }

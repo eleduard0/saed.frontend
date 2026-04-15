@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http'
 import { Observable, tap, catchError, throwError } from 'rxjs'
 
 import { environment } from '../../../environments/environment'
-import { Instrumento } from '../../features/instrumentos/models/instrumento.model'
+import { Instrumento } from '../../features/admin/instrumentos/models/instrumento.model'
 import { TempIdService } from './temp-id.service'
 
 @Injectable({ providedIn: 'root' })

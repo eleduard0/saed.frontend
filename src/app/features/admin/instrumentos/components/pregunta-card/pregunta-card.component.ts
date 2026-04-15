@@ -12,7 +12,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
 import { Pregunta } from '../../models/pregunta.model'
 import { Opcion } from '../../models/opcion.model'
 import { TipoPregunta, TIPO_PREGUNTA_OPTIONS } from '../../models/enums'
-import { TempIdService } from '../../../../core/services/temp-id.service'
+import { TempIdService } from '../../../../../core/services/temp-id.service'
 
 @Component({
   selector: 'app-pregunta-card',

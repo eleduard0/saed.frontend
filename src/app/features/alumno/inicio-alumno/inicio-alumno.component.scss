@@ -1,0 +1,381 @@
+// ── Paleta UTS ────────────────────────────────────────────────────────────
+// Primary:       #01907e
+// Primary Dark:  #016a5b
+// Primary Light: #58c6b6
+// Background:    #e6f6f3
+// Text Dark:     #1f2d29
+// Text Medium:   #45534f
+
+.alumno-root {
+  min-height: 100vh;
+  background: #e6f6f3;
+  font-family: 'Outfit', 'Segoe UI', sans-serif;
+  color: #1f2d29;
+}
+
+// ── Header ────────────────────────────────────────────────────────────────
+.alumno-header {
+  background: #ffffff;
+  border-bottom: 2px solid #b2d8d2;
+  padding: 0.9rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(1, 144, 126, 0.08);
+}
+
+.header-logo {
+  height: 44px;
+  object-fit: contain;
+}
+
+.btn-salir {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: #45534f;
+  border: 1.5px solid #b2d8d2;
+  border-radius: 8px;
+  padding: 0.45rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+
+  &:hover {
+    background: #fff1f0;
+    border-color: #e11d48;
+    color: #e11d48;
+  }
+}
+
+// ── Main ─────────────────────────────────────────────────────────────────
+.alumno-main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+// ── Perfil ────────────────────────────────────────────────────────────────
+.perfil-card {
+  background: #ffffff;
+  border: 1px solid #b2d8d2;
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+  box-shadow: 0 2px 12px rgba(1, 144, 126, 0.06);
+}
+
+.perfil-avatar {
+  width: 56px;
+  height: 56px;
+  background: rgba(1, 144, 126, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i {
+    font-size: 2rem;
+    color: #01907e;
+  }
+}
+
+.perfil-nombre {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1f2d29;
+  margin: 0 0 4px;
+}
+
+.perfil-matricula {
+  font-size: 0.82rem;
+  color: #45534f;
+}
+
+// ── Estado cargando ───────────────────────────────────────────────────────
+.estado-cargando {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem 0;
+  color: #45534f;
+
+  p { margin: 0; font-size: 0.9rem; }
+}
+
+.spinner-ring {
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(1, 144, 126, 0.15);
+  border-top-color: #01907e;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ── Estado vacío / error ──────────────────────────────────────────────────
+.estado-vacio {
+  background: #ffffff;
+  border: 1px solid #b2d8d2;
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  text-align: center;
+
+  .vacio-icon i {
+    font-size: 3rem;
+    color: #58c6b6;
+    opacity: 0.6;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1f2d29;
+    margin: 1rem 0 0.5rem;
+  }
+
+  p {
+    font-size: 0.875rem;
+    color: #45534f;
+    margin: 0;
+  }
+}
+
+// ── Panel de evaluaciones ─────────────────────────────────────────────────
+.evaluaciones-panel {
+  background: #ffffff;
+  border: 1px solid #b2d8d2;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(1, 144, 126, 0.06);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid #e6f6f3;
+}
+
+.panel-titulo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f2d29;
+  margin: 0;
+}
+
+.panel-contador {
+  font-size: 0.78rem;
+  color: #45534f;
+  background: rgba(1, 144, 126, 0.08);
+  color: #016a5b;
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-weight: 600;
+}
+
+// ── Buscador ──────────────────────────────────────────────────────────────
+.buscador-wrapper {
+  position: relative;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid #e6f6f3;
+}
+
+.buscador-icon {
+  position: absolute;
+  left: 2.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #45534f;
+  font-size: 0.875rem;
+  pointer-events: none;
+}
+
+.buscador-input {
+  width: 100%;
+  padding: 0.6rem 1rem 0.6rem 2.25rem;
+  border: 1.5px solid #b2d8d2;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  color: #1f2d29;
+  background: #f8fffe;
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+
+  &::placeholder { color: #94a3b8; }
+
+  &:focus {
+    border-color: #01907e;
+    box-shadow: 0 0 0 3px rgba(1, 144, 126, 0.1);
+  }
+}
+
+// ── Tabla ─────────────────────────────────────────────────────────────────
+.tabla-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.tabla-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  padding: 0.6rem 1.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #45534f;
+  background: #f8fffe;
+  border-bottom: 1px solid #e6f6f3;
+}
+
+.tabla-fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.9rem 1.5rem;
+  border-bottom: 1px solid #f0faf8;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:last-child { border-bottom: none; }
+
+  &:hover {
+    background: rgba(1, 144, 126, 0.04);
+
+    .btn-evaluar {
+      background: #01907e;
+      color: #fff;
+      border-color: #01907e;
+    }
+  }
+}
+
+.fila-maestro {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.maestro-avatar {
+  width: 36px;
+  height: 36px;
+  background: rgba(1, 144, 126, 0.12);
+  color: #016a5b;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.maestro-nombre {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #1f2d29;
+}
+
+.maestro-grupo {
+  display: block;
+  font-size: 0.75rem;
+  color: #45534f;
+}
+
+.fila-materia {
+  font-size: 0.875rem;
+  color: #45534f;
+}
+
+.fila-accion {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-evaluar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.4rem 0.9rem;
+  border: 1.5px solid #01907e;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #01907e;
+  background: transparent;
+  white-space: nowrap;
+  transition: all 0.18s ease;
+}
+
+// ── Sin resultados ────────────────────────────────────────────────────────
+.sin-resultados {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3rem 1rem;
+  color: #45534f;
+  text-align: center;
+
+  i { font-size: 1.75rem; opacity: 0.4; }
+  p { font-size: 0.875rem; margin: 0; }
+}
+
+// ── Estado completo ───────────────────────────────────────────────────────
+.estado-completo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3.5rem 2rem;
+  text-align: center;
+
+  .completo-icon i {
+    font-size: 3rem;
+    color: #01907e;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1f2d29;
+    margin: 0.75rem 0 0.25rem;
+  }
+
+  p {
+    font-size: 0.875rem;
+    color: #45534f;
+    margin: 0;
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────
+@media (max-width: 600px) {
+  .alumno-main { padding: 1rem 1rem 3rem; }
+
+  .tabla-header,
+  .tabla-fila {
+    grid-template-columns: 1fr auto;
+
+    .fila-materia { display: none; }
+    .tabla-header span:nth-child(2) { display: none; }
+  }
+}

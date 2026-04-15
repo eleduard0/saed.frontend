@@ -13,7 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
 import { Categoria } from '../../models/categoria.model'
 import { Pregunta } from '../../models/pregunta.model'
 import { TipoPregunta } from '../../models/enums'
-import { TempIdService } from '../../../../core/services/temp-id.service'
+import { TempIdService } from '../../../../../core/services/temp-id.service'
 import { PreguntaCardComponent } from '../pregunta-card/pregunta-card.component'
 
 @Component({

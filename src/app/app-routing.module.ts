@@ -41,32 +41,39 @@ export const Approutes: Routes = [
       {
         path: 'instrumentos',
         loadComponent: () =>
-          import('./features/instrumentos/instrumento-list/instrumento-list.component').then((m) => m.InstrumentoListComponent),
+          import('./features/admin/instrumentos/instrumento-list/instrumento-list.component').then((m) => m.InstrumentoListComponent),
         canActivate: [AuthGuard],
         data: { roles: ['Admin'] },
       },
       {
         path: 'procesos',
         loadComponent: () =>
-          import('./features/procesos/procesos-list/procesos-list.component').then((m) => m.ProcesosListComponent),
+          import('./features/admin/procesos/procesos-list/procesos-list.component').then((m) => m.ProcesosListComponent),
         canActivate: [AuthGuard],
         data: { roles: ['Admin'] },
       },
       {
         path: 'nuevoinstrumento',
         loadComponent: () =>
-          import('./features/instrumentos/instrumento-editor/instrumento-editor.component').then((m) => m.InstrumentoEditorComponent),
+          import('./features/admin/instrumentos/instrumento-editor/instrumento-editor.component').then((m) => m.InstrumentoEditorComponent),
         canActivate: [AuthGuard],
         data: { roles: ['Admin'] },
       },
 
       // Componentes → Admin y Alumno
       {
-        path: 'component',
-        loadChildren: () =>
-          import('./component/component.module').then((m) => m.ComponentsModule),
+        path: 'inicio-alumno',
+        loadComponent: () =>
+          import('./features/alumno/inicio-alumno/inicio-alumno.component').then((m) => m.InicioAlumnoComponent),
         canActivate: [AuthGuard],
-        data: { roles: ['Admin', 'Alumno'] },
+        data: { roles: ['Alumno'] },
+      },
+      {
+        path: 'evaluar',
+        loadComponent: () =>
+          import('./features/alumno/evaluar/evaluar.component').then((m) => m.EvaluarComponent),
+        canActivate: [AuthGuard],
+        data: { roles: ['Alumno'] },
       },
 
 

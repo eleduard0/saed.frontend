@@ -14,8 +14,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar'
 import { MatTooltipModule } from '@angular/material/tooltip'
 import { MatChipsModule } from '@angular/material/chips'
 
-import { InstrumentoService } from '../../../core/services/instrumento.service'
-import { TempIdService } from '../../../core/services/temp-id.service'
+import { InstrumentoService } from '../../../../core/services/instrumento.service'
+import { TempIdService } from '../../../../core/services/temp-id.service'
 import { CategoriaCardComponent } from '../components/categoria-card/categoria-card.component'
 
 import { Instrumento } from '../models/instrumento.model'

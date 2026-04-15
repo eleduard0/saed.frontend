@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ProcesoService } from 'src/app/core/services/proceso.service';
-import { ProcesoDto } from '../../admin/dashboard/models/proceso.model'; // ajusta ruta si es necesario
+import { ProcesoDto } from '../../dashboard/models/proceso.model'; // ajusta ruta si es necesario
 
 @Component({
   selector: 'app-procesos-list',
