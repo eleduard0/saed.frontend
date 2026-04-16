@@ -1,10 +1,13 @@
 import { Pregunta } from './pregunta.model'
 
 export interface Categoria {
-  id?: number
-  /** ID temporal para trackBy antes de persistir en BD */
+  id?:     number
   _tempId?: string
-  titulo: string
-  orden: number
+
+  // El backend usa "nombre", el template usa "titulo"
+  // Mantenemos "titulo" en el frontend pero lo mapeamos al enviar
+  nombre: string
+  orden:  number
+
   preguntas: Pregunta[]
 }

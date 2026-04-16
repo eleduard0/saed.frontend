@@ -9,32 +9,10 @@ import {
   RespuestaDto
 } from 'src/app/core/services/evaluacion.service';
 
-interface Opcion {
-  id:    number;
-  texto: string;
-  valor: number;
-}
-
-interface Pregunta {
-  id:      number;
-  texto:   string;
-  tipo:    string;
-  orden:   number;
-  opciones: Opcion[];
-}
-
-interface Categoria {
-  id:        number;
-  nombre:    string;
-  orden:     number;
-  preguntas: Pregunta[];
-}
-
-interface Instrumento {
-  id:         number;
-  nombre:     string;
-  categorias: Categoria[];
-}
+interface Opcion    { id: number; texto: string; valor: number; }
+interface Pregunta  { id: number; texto: string; tipo: string; orden: number; opciones: Opcion[]; }
+interface Categoria { id: number; nombre: string; orden: number; preguntas: Pregunta[]; }
+interface Instrumento { id: number; nombre: string; categorias: Categoria[]; }
 
 @Component({
   selector: 'app-evaluar',
@@ -48,16 +26,15 @@ export class EvaluarComponent implements OnInit {
   evaluacion: EvaluacionDisponibleDto | null = null;
   instrumento: Instrumento | null = null;
 
-  // Map: preguntaId → opcionId seleccionada
-  respuestas: Map<number, number> = new Map();
-  // Map: preguntaId → texto libre (preguntas abiertas)
+  respuestas:         Record<number, number> = {};
   respuestasAbiertas: Record<number, string> = {};
   comentario = '';
 
-  loading   = false;
-  guardando = false;
-  errorMsg  = '';
-  enviado   = false;
+  loading     = false;
+  guardando   = false;
+  errorMsg    = '';
+  enviado     = false;
+  intentoEnviar = false;  // para mostrar validación del comentario
   evaluacionId: number | null = null;
 
   constructor(
@@ -65,14 +42,12 @@ export class EvaluarComponent implements OnInit {
     private api: ApiService,
     private evaluacionService: EvaluacionService
   ) {
-    // Recibir datos del maestro/materia desde el state de navegación
     const nav = this.router.getCurrentNavigation();
     this.evaluacion = nav?.extras?.state?.['evaluacion'] ?? null;
   }
 
   ngOnInit(): void {
     if (!this.evaluacion) {
-      // Si no hay datos en el state (recarga de página), volver al inicio
       this.router.navigate(['/inicio-alumno']);
       return;
     }
@@ -83,7 +58,6 @@ export class EvaluarComponent implements OnInit {
     this.loading  = true;
     this.errorMsg = '';
 
-    // El instrumento viene del proceso activo
     this.api.get<any>('/procesos/activo').subscribe({
       next: (proceso) => {
         if (!proceso?.instrumentoId) {
@@ -91,71 +65,102 @@ export class EvaluarComponent implements OnInit {
           this.loading  = false;
           return;
         }
-        this.api.get<Instrumento>(`/instrumentos/${proceso.instrumentoId}`).subscribe({
-          next: (inst) => {
-            this.instrumento = inst;
-            this.loading     = false;
+        this.api.get<any>(`/instrumentos/${proceso.instrumentoId}`).subscribe({
+          next: (raw) => {
+            // Mapear nombre → nombre (el backend devuelve "nombre" en categorías)
+            this.instrumento = {
+              id:     raw.id,
+              nombre: raw.nombre,
+              categorias: (raw.categorias ?? []).map((cat: any) => ({
+                id:        cat.id,
+                nombre:    cat.nombre ?? '',
+                orden:     cat.orden,
+                preguntas: (cat.preguntas ?? []).map((p: any) => ({
+                  id:       p.id,
+                  texto:    p.texto,
+                  tipo:     p.tipo,           // "Cerrada" | "Abierta"
+                  orden:    p.orden,
+                  opciones: (p.opciones ?? []).map((op: any) => ({
+                    id:    op.id,
+                    texto: op.texto,
+                    valor: op.valor
+                  }))
+                }))
+              }))
+            };
+            this.loading = false;
           },
-          error: () => {
-            this.errorMsg = 'No se pudo cargar el instrumento de evaluación.';
-            this.loading  = false;
-          }
+          error: () => { this.errorMsg = 'No se pudo cargar el instrumento.'; this.loading = false; }
         });
       },
-      error: () => {
-        this.errorMsg = 'No hay proceso activo.';
-        this.loading  = false;
-      }
+      error: () => { this.errorMsg = 'No hay proceso activo.'; this.loading = false; }
     });
   }
 
   seleccionar(preguntaId: number, opcionId: number): void {
-    this.respuestas.set(preguntaId, opcionId);
+    this.respuestas[preguntaId] = opcionId;
   }
 
   opcionSeleccionada(preguntaId: number, opcionId: number): boolean {
-    return this.respuestas.get(preguntaId) === opcionId;
+    return this.respuestas[preguntaId] === opcionId;
   }
 
-  get totalPreguntas(): number {
+  // Solo contar preguntas cerradas para la barra de progreso
+  get preguntasCerradas(): Pregunta[] {
     return this.instrumento?.categorias
       .flatMap(c => c.preguntas)
-      .filter(p => p.tipo === 'Cerrada').length ?? 0;
+      .filter(p => p.tipo === 'Cerrada' || p.tipo === 'cerrada') ?? [];
   }
 
-  get totalRespondidas(): number {
-    return this.respuestas.size;
-  }
-
+  get totalPreguntas(): number   { return this.preguntasCerradas.length; }
+  get totalRespondidas(): number { return Object.keys(this.respuestas).length; }
   get progreso(): number {
     if (this.totalPreguntas === 0) return 0;
     return Math.round((this.totalRespondidas / this.totalPreguntas) * 100);
   }
 
-  get formularioCompleto(): boolean {
-    return this.totalRespondidas >= this.totalPreguntas;
-  }
+  get preguntasCompletas(): boolean { return this.totalRespondidas >= this.totalPreguntas; }
+  get comentarioValido(): boolean   { return this.comentario.trim().length > 0; }
+  get formularioCompleto(): boolean { return this.preguntasCompletas && this.comentarioValido; }
 
   enviar(): void {
-    if (!this.formularioCompleto || !this.evaluacion) return;
+    this.intentoEnviar = true;
+
+    if (!this.preguntasCompletas) {
+      this.errorMsg = `Debes responder todas las preguntas (${this.totalRespondidas}/${this.totalPreguntas}).`;
+      return;
+    }
+
+    if (!this.comentarioValido) {
+      this.errorMsg = 'El comentario es obligatorio.';
+      return;
+    }
+
+    if (!this.evaluacion) return;
 
     this.guardando = true;
     this.errorMsg  = '';
 
-    const respuestasDto: RespuestaDto[] = Array.from(this.respuestas.entries()).map(
-      ([preguntaId, opcionId]) => ({ preguntaId, opcionId })
+    const respuestasDto: RespuestaDto[] = Object.entries(this.respuestas).map(
+      ([preguntaId, opcionId]) => ({
+        preguntaId: Number(preguntaId),
+        opcionId:   Number(opcionId)
+      })
     );
 
     this.evaluacionService.crearEvaluacion({
-      idMaestro:  this.evaluacion.idMaestro,
-      materiaId:  this.evaluacion.materiaId,
-      respuestas: respuestasDto,
-      comentario: this.comentario.trim() || undefined,
+      idMaestro:     this.evaluacion.idMaestro,
+      nombreMaestro: this.evaluacion.nombreMaestro,
+      materiaId:     this.evaluacion.materiaId,
+      nombreMateria: this.evaluacion.materia,
+      grupo:         this.evaluacion.grupo,
+      respuestas:    respuestasDto,
+      comentario:    this.comentario.trim(),
     }).subscribe({
       next: (res) => {
-        this.guardando     = false;
-        this.enviado       = true;
-        this.evaluacionId  = res.id;
+        this.guardando    = false;
+        this.enviado      = true;
+        this.evaluacionId = res.id;
       },
       error: (err) => {
         this.guardando = false;

@@ -11,8 +11,8 @@
 
     <mat-form-field appearance="outline" class="titulo-field" subscriptSizing="dynamic">
       <mat-label>Nombre de la categoría</mat-label>
-      <input matInput [(ngModel)]="categoria.titulo" />
-      @if (!categoria.titulo) {
+      <input matInput [(ngModel)]="categoria.nombre" />
+      @if (!categoria.nombre) {
         <mat-error>El nombre es obligatorio.</mat-error>
       }
     </mat-form-field>

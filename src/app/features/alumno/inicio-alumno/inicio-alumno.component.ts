@@ -6,7 +6,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import {
   EvaluacionService,
   EvaluacionDisponibleDto
-} from 'src/app/core/services/evaluacion.service';
+} from '../../../core/services/evaluacion.service';
 
 @Component({
   selector: 'app-inicio-alumno',
@@ -22,8 +22,8 @@ export class InicioAlumnoComponent implements OnInit {
   loading    = false;
   errorMsg   = '';
   busqueda   = '';
+  mostrarModal = true; // modal de bienvenida
 
-  // Datos del alumno desde la sesión
   sesion = this.authService.getSesion();
 
   constructor(
@@ -64,17 +64,19 @@ export class InicioAlumnoComponent implements OnInit {
   }
 
   irAEvaluar(evaluacion: EvaluacionDisponibleDto): void {
-    // Pasar los datos del maestro/materia por state para no exponerlos en la URL
-    this.router.navigate(['/evaluar'], {
-      state: { evaluacion }
-    });
+    if (evaluacion.yaEvaluado) return;
+    this.router.navigate(['evaluar'], { state: { evaluacion } });
+  }
+
+  cerrarModal(): void {
+    this.mostrarModal = false;
   }
 
   logout(): void {
     this.authService.logout();
   }
 
-  get totalEvaluaciones(): number {
-    return this.evaluaciones.length;
-  }
+  get totalEvaluaciones(): number { return this.evaluaciones.length; }
+  get totalEvaluadas(): number    { return this.evaluaciones.filter(e => e.yaEvaluado).length; }
+  get todasCompletadas(): boolean { return this.totalEvaluaciones > 0 && this.totalEvaluadas === this.totalEvaluaciones; }
 }

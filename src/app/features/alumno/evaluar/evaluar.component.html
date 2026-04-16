@@ -9,8 +9,7 @@
       <span class="header-maestro">{{ evaluacion.nombreMaestro | titlecase }}</span>
       <span class="header-materia">{{ evaluacion.materia }} · Grupo {{ evaluacion.grupo }}</span>
     </div>
-    <!-- Barra de progreso -->
-    <div class="progreso-wrap" *ngIf="!enviado && instrumento">
+    <div class="progreso-wrap" *ngIf="!enviado && instrumento && totalPreguntas > 0">
       <div class="progreso-bar">
         <div class="progreso-fill" [style.width.%]="progreso"></div>
       </div>
@@ -35,14 +34,11 @@
 
     <!-- ── Enviado con éxito ──────────────────────────────────── -->
     <div class="estado-exito" *ngIf="enviado">
-      <div class="exito-icon">
-        <i class="bi bi-patch-check-fill"></i>
-      </div>
+      <div class="exito-icon"><i class="bi bi-patch-check-fill"></i></div>
       <h2>¡Evaluación enviada!</h2>
       <p>Tu evaluación fue registrada correctamente.</p>
       <p class="exito-clave">
-        Guarda esta clave de comprobante:
-        <strong>#{{ evaluacionId }}</strong>
+        Guarda esta clave de comprobante: <strong>#{{ evaluacionId }}</strong>
       </p>
       <button class="btn-accion" (click)="volver()">
         <i class="bi bi-arrow-left me-1"></i> Volver a mis evaluaciones
@@ -50,23 +46,19 @@
     </div>
 
     <!-- ── Cuestionario ──────────────────────────────────────── -->
-    <ng-container *ngIf="!loading && !errorMsg && !enviado && instrumento">
+    <ng-container *ngIf="!loading && !enviado && instrumento">
 
       <div class="instrumento-titulo">
         <h2>{{ instrumento.nombre }}</h2>
       </div>
 
       <!-- Categorías -->
-      <div
-        class="categoria-bloque"
-        *ngFor="let cat of instrumento.categorias">
+      <div class="categoria-bloque" *ngFor="let cat of instrumento.categorias">
 
         <h3 class="categoria-titulo">{{ cat.nombre }}</h3>
 
         <!-- Preguntas -->
-        <div
-          class="pregunta-item"
-          *ngFor="let preg of cat.preguntas; let i = index">
+        <div class="pregunta-item" *ngFor="let preg of cat.preguntas; let i = index">
 
           <p class="pregunta-texto">
             <span class="pregunta-num">{{ i + 1 }}.</span>
@@ -74,7 +66,7 @@
           </p>
 
           <!-- Opciones cerradas -->
-          <div class="opciones-grid" *ngIf="preg.tipo === 'Cerrada'">
+          <div class="opciones-grid" *ngIf="preg.tipo === 'Cerrada' || preg.tipo === 'cerrada'">
             <button
               class="opcion-btn"
               *ngFor="let op of preg.opciones"
@@ -87,7 +79,7 @@
 
           <!-- Pregunta abierta -->
           <textarea
-            *ngIf="preg.tipo === 'Abierta'"
+            *ngIf="preg.tipo === 'Abierta' || preg.tipo === 'abierta'"
             class="respuesta-abierta"
             rows="3"
             placeholder="Escribe tu respuesta…"
@@ -97,35 +89,40 @@
         </div>
       </div>
 
-      <!-- Comentario final -->
-      <div class="comentario-bloque">
+      <!-- Comentario OBLIGATORIO -->
+      <div class="comentario-bloque" [class.bloque-error]="intentoEnviar && !comentarioValido">
         <label class="comentario-label">
           <i class="bi bi-chat-left-text me-1"></i>
-          Comentario adicional <span class="text-muted">(opcional)</span>
+          Comentario adicional
+          <span class="requerido">* obligatorio</span>
         </label>
         <textarea
           class="comentario-input"
+          [class.input-error]="intentoEnviar && !comentarioValido"
           rows="4"
-          placeholder="¿Tienes algo más que agregar sobre este profesor?"
+          placeholder="Escribe un comentario sobre el desempeño del profesor…"
           [(ngModel)]="comentario">
         </textarea>
+        <span class="error-hint" *ngIf="intentoEnviar && !comentarioValido">
+          <i class="bi bi-exclamation-circle me-1"></i>El comentario es obligatorio.
+        </span>
       </div>
 
       <!-- Error de envío -->
-      <div class="alerta-error" *ngIf="errorMsg">
+      <div class="alerta-error" *ngIf="errorMsg && !loading">
         <i class="bi bi-exclamation-triangle me-2"></i>{{ errorMsg }}
       </div>
 
       <!-- Botón enviar -->
       <div class="enviar-footer">
-        <p class="enviar-hint" *ngIf="!formularioCompleto">
+        <p class="enviar-hint" *ngIf="!preguntasCompletas">
           <i class="bi bi-info-circle me-1"></i>
-          Responde todas las preguntas para poder enviar ({{ totalRespondidas }}/{{ totalPreguntas }})
+          Responde todas las preguntas ({{ totalRespondidas }}/{{ totalPreguntas }})
         </p>
         <button
           class="btn-enviar"
           (click)="enviar()"
-          [disabled]="!formularioCompleto || guardando">
+          [disabled]="guardando">
           <span *ngIf="guardando" class="spinner-sm"></span>
           <i *ngIf="!guardando" class="bi bi-send-fill me-2"></i>
           {{ guardando ? 'Enviando…' : 'Enviar evaluación' }}

@@ -131,7 +131,7 @@ export class InstrumentoEditorComponent implements OnInit {
   agregarCategoria(): void {
     const nueva: Categoria = {
       _tempId:   this.tempId.generate(),
-      titulo:    'Nueva categoría',
+      nombre:    'Nueva categoría',
       orden:     this.categorias.length + 1,
       preguntas: []
     }
@@ -175,7 +175,7 @@ export class InstrumentoEditorComponent implements OnInit {
           // procesoId eliminado
           categorias: (plantilla.categorias ?? []).map((cat, idx) => ({
             _tempId:   this.tempId.generate(),
-            titulo:    cat.titulo,
+            nombre:    cat.nombre,
             orden:     idx + 1,
             preguntas: (cat.preguntas ?? []).map((preg, pIdx) => ({
               _tempId:  this.tempId.generate(),
@@ -254,11 +254,11 @@ export class InstrumentoEditorComponent implements OnInit {
       errores.push('El instrumento debe tener al menos una categoría.')
 
     for (const cat of this.instrumento.categorias) {
-      if (!cat.titulo?.trim())
+      if (!cat.nombre?.trim())
         errores.push('Una categoría no tiene título.')
 
       if (cat.preguntas.length === 0)
-        errores.push(`La categoría "${cat.titulo || 'Sin título'}" no tiene preguntas.`)
+        errores.push(`La categoría "${cat.nombre || 'Sin título'}" no tiene preguntas.`)
 
       for (const preg of cat.preguntas) {
         if (!preg.texto?.trim())

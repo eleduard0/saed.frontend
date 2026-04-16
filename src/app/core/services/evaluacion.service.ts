@@ -7,6 +7,7 @@ export interface EvaluacionDisponibleDto {
   materiaId:     string;
   materia:       string;
   grupo:         string;
+  yaEvaluado:    boolean;
 }
 
 export interface RespuestaDto {
@@ -15,15 +16,22 @@ export interface RespuestaDto {
 }
 
 export interface CrearEvaluacionDto {
-  idMaestro:  string;
-  materiaId:  string;
-  respuestas: RespuestaDto[];
-  comentario?: string;
+  idMaestro:     string;
+  nombreMaestro: string;
+  materiaId:     string;
+  nombreMateria: string;
+  grupo:         string;
+  respuestas:    RespuestaDto[];
+  comentario?:   string;
+}
+
+export interface EvaluacionCreadaDto {
+  id:    number;
+  fecha: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class EvaluacionService {
-
   constructor(private api: ApiService) {}
 
   getDisponibles() {
@@ -31,6 +39,6 @@ export class EvaluacionService {
   }
 
   crearEvaluacion(dto: CrearEvaluacionDto) {
-    return this.api.post<{ id: number }>('/evaluaciones', dto);
+    return this.api.post<EvaluacionCreadaDto>('/evaluaciones', dto);
   }
 }

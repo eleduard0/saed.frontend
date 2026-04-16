@@ -1,0 +1,154 @@
+<div class="reportes-root">
+
+  <!-- ── Encabezado ────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h3 class="page-titulo">Reportes de Evaluación Docente</h3>
+      <small class="text-muted">Genera y descarga reportes por maestro</small>
+    </div>
+  </div>
+
+  <!-- ── Selector de proceso ───────────────────────────────────── -->
+  <div class="selector-card">
+    <label class="selector-label">
+      <i class="bi bi-calendar-check me-2"></i>Selecciona el periodo de evaluación
+    </label>
+    <select
+      class="form-select selector-select"
+      [(ngModel)]="procesoSeleccionado"
+      (ngModelChange)="onProcesoChange()">
+      <option [ngValue]="null" disabled>Selecciona un periodo…</option>
+      <option *ngFor="let p of procesos" [ngValue]="p.id">
+        {{ p.nombre }} · {{ periodoLabel(p.periodo) }} {{ p.anio }}
+        <span *ngIf="p.activo"> (Activo)</span>
+      </option>
+    </select>
+  </div>
+
+  <!-- ── Cargando procesos ─────────────────────────────────────── -->
+  <div class="estado-cargando" *ngIf="loading">
+    <div class="spinner-ring"></div>
+    <p>Cargando procesos…</p>
+  </div>
+
+  <!-- ── Error ────────────────────────────────────────────────── -->
+  <div class="alert alert-danger" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+  <!-- ── Lista de maestros ─────────────────────────────────────── -->
+  <div *ngIf="procesoSeleccionado && !loading">
+
+    <div class="estado-cargando" *ngIf="loadingMaestros">
+      <div class="spinner-ring"></div>
+      <p>Cargando maestros evaluados…</p>
+    </div>
+
+    <div class="alert alert-info" *ngIf="!loadingMaestros && maestros.length === 0">
+      No hay maestros evaluados en este periodo aún.
+    </div>
+
+    <div class="maestros-grid" *ngIf="!loadingMaestros && maestros.length > 0">
+      <div
+        class="maestro-card"
+        *ngFor="let m of maestros"
+        (click)="verReporte(m.idMaestro)">
+
+        <div class="maestro-avatar">{{ m.nombreMaestro.charAt(0) }}</div>
+        <div class="maestro-info">
+          <span class="maestro-nombre">{{ m.nombreMaestro | titlecase }}</span>
+          <span class="maestro-meta">
+            <i class="bi bi-people me-1"></i>{{ m.totalEvaluaciones }} evaluaciones
+          </span>
+        </div>
+        <div class="maestro-accion">
+          <i class="bi bi-file-earmark-bar-graph-fill"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal de reporte ──────────────────────────────────────── -->
+  <div class="modal-overlay" *ngIf="reporte || loadingReporte" (click)="cerrarReporte()">
+    <div class="modal-reporte" (click)="$event.stopPropagation()">
+
+      <!-- Cargando reporte -->
+      <div class="estado-cargando" *ngIf="loadingReporte">
+        <div class="spinner-ring"></div>
+        <p>Generando reporte…</p>
+      </div>
+
+      <ng-container *ngIf="reporte && !loadingReporte">
+
+        <!-- Cabecera del modal -->
+        <div class="reporte-header">
+          <div>
+            <h4 class="reporte-nombre">{{ reporte.nombreMaestro | titlecase }}</h4>
+            <span class="reporte-meta">
+              {{ reporte.nombreProceso }} ·
+              {{ reporte.totalEvaluaciones }} evaluaciones
+            </span>
+          </div>
+          <div class="reporte-acciones">
+            <button
+              class="btn-pdf"
+              (click)="exportarPdf()"
+              [disabled]="generandoPdf">
+              <span *ngIf="generandoPdf" class="spinner-sm"></span>
+              <i *ngIf="!generandoPdf" class="bi bi-file-earmark-pdf me-1"></i>
+              {{ generandoPdf ? 'Generando…' : 'Descargar PDF' }}
+            </button>
+            <button class="btn-cerrar" (click)="cerrarReporte()">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Promedio general -->
+        <div class="promedio-badge" [style.background]="colorPromedio">
+          <span class="promedio-valor">{{ promedioGeneral.toFixed(2) }}</span>
+          <span class="promedio-label">Promedio General</span>
+        </div>
+
+        <!-- Preguntas -->
+        <div class="preguntas-lista">
+          <div class="pregunta-reporte" *ngFor="let p of reporte.preguntas; let i = index">
+            <div class="pregunta-reporte-header">
+              <span class="pregunta-num">{{ i + 1 }}</span>
+              <p class="pregunta-reporte-texto">{{ p.textoPregunta }}</p>
+              <span class="pregunta-promedio" [style.color]="p.promedio >= 8 ? '#01907e' : p.promedio >= 6 ? '#f59e0b' : '#e11d48'">
+                {{ p.promedio.toFixed(2) }}
+              </span>
+            </div>
+            <!-- Distribución -->
+            <div class="distribucion">
+              <div
+                class="dist-item"
+                *ngFor="let d of distribucionEntries(p.distribucion)">
+                <span class="dist-label">{{ d.key }}</span>
+                <div class="dist-barra-wrap">
+                  <div
+                    class="dist-barra"
+                    [style.width.%]="(d.value / reporte!.totalEvaluaciones) * 100">
+                  </div>
+                </div>
+                <span class="dist-count">{{ d.value }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comentarios -->
+        <div class="comentarios-seccion" *ngIf="reporte.comentarios.length > 0">
+          <h5 class="comentarios-titulo">
+            <i class="bi bi-chat-left-quote me-2"></i>Comentarios de alumnos
+          </h5>
+          <div class="comentario-item" *ngFor="let c of reporte.comentarios">
+            <i class="bi bi-quote"></i>
+            <p>{{ c }}</p>
+          </div>
+        </div>
+
+      </ng-container>
+    </div>
+  </div>
+
+</div>
