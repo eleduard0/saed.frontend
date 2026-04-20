@@ -1,47 +1,67 @@
-<nav class="sidebar-nav">
-  <ul id="sidebarnav" class="p-3 menuleft">
-    <li class="sidebar-item" *ngFor="let sidebarnavItem of sidebarnavItems" [class.active]="showMenu === sidebarnavItem.title || isSubmenuActive(sidebarnavItem)">
-      <div class="nav-small-cap" *ngIf="sidebarnavItem.extralink === true && sidebarnavItem.role">{{sidebarnavItem.title}}</div>
-      <ng-container *ngIf="sidebarnavItem.path !== ''; else noPath">
-        <a 
-          class="sidebar-link waves-effect waves-dark menuleft" 
-          [routerLink]="[sidebarnavItem.path]"
-          [ngClass]="[sidebarnavItem.class]" 
-          [routerLinkActive]="sidebarnavItem.submenu.length != 0 ? '' : 'active'"
-        >
-          <i [ngClass]="[sidebarnavItem.icon]"></i>
-          <span class="hide-menu">{{sidebarnavItem.title}}</span>
-          <i *ngIf="sidebarnavItem.submenu.length > 0" class="bi bi-chevron-down"></i> 
-        </a>
-      </ng-container>
-      <ng-template #noPath>
-        <a 
-          class="sidebar-link waves-effect waves-dark menuleft" 
-          (click)="toggleSubmenu(sidebarnavItem.title)" 
-        >
-          <i [ngClass]="[sidebarnavItem.icon]"></i>
-          <span class="hide-menu">{{sidebarnavItem.title}}</span>
-          <i *ngIf="sidebarnavItem.submenu.length > 0" class="bi bi-chevron-down"></i> 
-        </a>
-      </ng-template>
-      <ul *ngIf="sidebarnavItem.submenu.length > 0 && (showMenu === sidebarnavItem.title || isSubmenuActive(sidebarnavItem))" class="submenu">
-        <li *ngFor="let subItem of sidebarnavItem.submenu" class="sidebar-item" [class.active]="isSubmenuActive(subItem)">
-          <a 
-            class="sidebar-link waves-effect waves-dark menuleft" 
-            [routerLink]="[subItem.path]" 
-            [ngClass]="[subItem.class]" 
-            [routerLinkActive]="subItem.submenu.length != 0 ? '' : 'active'">
-            <i [ngClass]="[subItem.icon]"></i>
-            <span class="hide-menu">{{subItem.title}}</span>
-          </a>
-        </li>
-      </ul>
-    </li>
+<aside class="saed-sidebar">
 
-    <hr>
-    
-    <li class="text-center p-3 upgrade-btn">
-      <a href="/logout" class="btn d-block w-100 p-2 btn-danger"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a>
-    </li>
-  </ul>
-</nav>
+  <!-- ── Logo ──────────────────────────────────────────────────── -->
+  <div class="sidebar-logo">
+    <img src="assets/images/logos/logo.png" alt="UTS" class="logo-img" />
+    <span class="logo-version">v1.0.0</span>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <!-- ── Navegación ────────────────────────────────────────────── -->
+  <nav class="sidebar-nav">
+    <ul class="nav-list">
+      <li
+        class="nav-item"
+        *ngFor="let item of sidebarnavItems"
+        [class.has-submenu]="item.submenu.length > 0"
+        [class.open]="showMenu === item.title">
+
+        <!-- Ítem sin submenu -->
+        <a
+          *ngIf="item.submenu.length === 0"
+          class="nav-link"
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.path === '/dashboard' }">
+          <i [class]="item.icon + ' nav-icon'"></i>
+          <span class="nav-label">{{ item.title }}</span>
+        </a>
+
+        <!-- Ítem con submenu -->
+        <a
+          *ngIf="item.submenu.length > 0"
+          class="nav-link nav-link-parent"
+          [class.open]="showMenu === item.title"
+          (click)="toggleSubmenu(item.title)">
+          <i [class]="item.icon + ' nav-icon'"></i>
+          <span class="nav-label">{{ item.title }}</span>
+          <i class="bi bi-chevron-down chevron" [class.rotated]="showMenu === item.title"></i>
+        </a>
+
+        <!-- Submenu -->
+        <ul class="submenu-list" *ngIf="item.submenu.length > 0 && showMenu === item.title">
+          <li *ngFor="let sub of item.submenu">
+            <a
+              class="submenu-link"
+              [routerLink]="sub.path"
+              routerLinkActive="active">
+              <i [class]="sub.icon + ' sub-icon'"></i>
+              <span>{{ sub.title }}</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- ── Footer sidebar ────────────────────────────────────────── -->
+  <div class="sidebar-footer">
+    <div class="sidebar-divider"></div>
+    <button class="btn-logout" (click)="logout()">
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Cerrar sesión</span>
+    </button>
+  </div>
+
+</aside>

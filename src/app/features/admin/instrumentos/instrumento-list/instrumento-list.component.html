@@ -49,7 +49,7 @@
               </td>
               <td>
                 <span class="badge bg-light text-dark border">
-                  {{ inst.categorias?.length ?? 0 }} categorías
+                  {{ inst.categorias.length }} categorías
                 </span>
               </td>
               <td>
@@ -60,22 +60,15 @@
               </td>
               <!-- Columna "Proceso" eliminada — el proceso ahora referencia al instrumento, no al revés -->
               <td class="text-center">
-                <a
-                  [routerLink]="['/instrumentos', inst.id]"
-                  class="btn btn-sm btn-outline-info me-1"
+                <a [routerLink]="['/instrumentos', inst.id]" class="btn btn-sm btn-outline-info me-1"
                   title="Ver detalle">
                   <i class="bi bi-eye"></i>
                 </a>
-                <a
-                  [routerLink]="['/instrumentos', inst.id, 'editar']"
-                  class="btn btn-sm btn-outline-warning me-1"
+                <a [routerLink]="['/instrumentos', inst.id, 'editar']" class="btn btn-sm btn-outline-warning me-1"
                   title="Editar">
                   <i class="bi bi-pencil"></i>
                 </a>
-                <button
-                  class="btn btn-sm btn-outline-danger"
-                  (click)="eliminar(inst.id, inst.nombre)"
-                  title="Eliminar">
+                <button class="btn btn-sm btn-outline-danger" (click)="eliminar(inst.id, inst.nombre)" title="Eliminar">
                   <i class="bi bi-trash"></i>
                 </button>
               </td>

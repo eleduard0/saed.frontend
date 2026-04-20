@@ -13,6 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
 import { Categoria } from '../../models/categoria.model'
 import { Pregunta } from '../../models/pregunta.model'
 import { TipoPregunta } from '../../models/enums'
+import { Opcion, OPCIONES_PREDETERMINADAS } from '../../models/opcion.model'
 import { TempIdService } from '../../../../../core/services/temp-id.service'
 import { PreguntaCardComponent } from '../pregunta-card/pregunta-card.component'
 
@@ -41,37 +42,37 @@ export class CategoriaCardComponent {
 
   constructor(private readonly tempId: TempIdService) {}
 
-  // Reordenar preguntas con drag&drop y sincronizar el orden.
   reordenarPreguntas(event: CdkDragDrop<Pregunta[]>): void {
     moveItemInArray(this.categoria.preguntas, event.previousIndex, event.currentIndex)
     this._actualizarOrden()
   }
 
-  // Agregar pregunta base dentro de la categoria.
   agregarPregunta(): void {
+    // Al agregar una pregunta cerrada, las opciones predeterminadas se aplican de inmediato
     const nueva: Pregunta = {
-      _tempId: this.tempId.generate(),
-      texto:   'Nueva pregunta',
-      tipo:    TipoPregunta.Cerrada,
-      orden:   this.categoria.preguntas.length + 1,
-      opciones: []
+      _tempId:  this.tempId.generate(),
+      texto:    'Nueva pregunta',
+      tipo:     TipoPregunta.Cerrada,
+      orden:    this.categoria.preguntas.length + 1,
+      opciones: OPCIONES_PREDETERMINADAS.map(op => ({
+        _tempId: this.tempId.generate(),
+        texto:   op.texto,
+        valor:   op.valor
+      }))
     }
     this.categoria.preguntas.push(nueva)
   }
 
-  // Eliminar pregunta por indice.
   eliminarPregunta(index: number): void {
     this.categoria.preguntas.splice(index, 1)
     this._actualizarOrden()
   }
 
-// trackBy para mantener el DOM estable durante edicion.
-trackPregunta(p: Pregunta): string {
-  return p._tempId ?? String(p.id)
-}
+  trackPregunta(p: Pregunta): string {
+    return p._tempId ?? String(p.id)
+  }
 
   private _actualizarOrden(): void {
-    // Recalcular orden consecutivo.
     this.categoria.preguntas.forEach((p, i) => (p.orden = i + 1))
   }
 }

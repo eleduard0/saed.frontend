@@ -1,103 +1,55 @@
-import { CommonModule } from "@angular/common";
-import { Component, OnInit, HostListener } from "@angular/core";
-import { Router, RouterModule } from "@angular/router";
-import { NgbCollapseModule } from "@ng-bootstrap/ng-bootstrap";
-import { NavigationComponent } from "src/app/shared/header/navigation.component";
-import { SidebarComponent } from "src/app/shared/sidebar/sidebar.component";
-import { RouteInfo } from "src/app/shared/sidebar/sidebar.metadata";
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { SidebarComponent } from 'src/app/shared/sidebar/sidebar.component'; // ajusta ruta
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
-  selector: "app-full-layout",
+  selector: 'app-full',
   standalone: true,
-  imports: [RouterModule, SidebarComponent, NavigationComponent, CommonModule, NgbCollapseModule],
-  templateUrl: "./full.component.html",
-  styleUrls: ["./full.component.scss"],
+  imports: [CommonModule, RouterModule, SidebarComponent],
+  template: `
+    <div class="layout-wrapper" [class.layout-alumno]="esAlumno">
+
+      <!-- Sidebar solo para Admin -->
+      <app-sidebar *ngIf="!esAlumno"></app-sidebar>
+
+      <!-- Contenido principal -->
+      <main class="layout-content" [class.content-sin-sidebar]="esAlumno">
+        <router-outlet></router-outlet>
+      </main>
+
+    </div>
+  `,
+  styles: [`
+    .layout-wrapper {
+      display: flex;
+      min-height: 100vh;
+      background: #e6f6f3;
+    }
+
+    .layout-content {
+      flex: 1;
+      margin-left: 240px;   /* ancho del sidebar */
+      min-height: 100vh;
+      background: #f8fffe;
+    }
+
+    /* Alumno: sin sidebar, ocupa todo el ancho */
+    .content-sin-sidebar {
+      margin-left: 0;
+      background: #e6f6f3;
+    }
+  `]
 })
 export class FullComponent implements OnInit {
-  public sidebarnavItems: RouteInfo[] = [];
-  public isCollapsed = false;
-  public innerWidth: number = 0;
-  public defaultSidebar: string = "";
-  public showMobileMenu = false;
-  public expandLogo = false;
-  public sidebartype = "full";
-  showMenu: string = '';
 
-  year = new Date().getFullYear();
+  esAlumno = false;
 
-  constructor(public router: Router) {}
-  
-  ngOnInit() {
-    if (this.router.url === "/") {
-      this.router.navigate(["/dashboard"]);
-    }
-    this.defaultSidebar = this.sidebartype;
-    this.handleSidebar();
+  constructor(private authService: AuthService) {}
+
+  ngOnInit(): void {
+    const sesion = this.authService.getSesion();
+    this.esAlumno = sesion?.rol === 'Alumno';
   }
-
-  Logo() {
-    this.expandLogo = !this.expandLogo;
-  }
-
-  @HostListener("window:resize", ["$event"])
-  onResize() {
-    this.handleSidebar();
-  }
-
-  handleSidebar() {
-    this.innerWidth = window.innerWidth;
-    if (this.innerWidth < 1170) {
-      this.sidebartype = "full";
-    } else {
-      this.sidebartype = this.defaultSidebar;
-    }
-  }
-
-  toggleSidebarType() {
-    switch (this.sidebartype) {
-      case "full":
-        this.sidebartype = "mini-sidebar";
-        break;
-
-      case "mini-sidebar":
-        this.sidebartype = "full";
-        break;
-
-      default:
-    }
-  }
-
-  toggleSubmenu(title: string) {
-    if (this.showMenu === title) {
-      this.showMenu = ''; // Cierra el submenú si ya está abierto
-    } else {
-      this.showMenu = title; // Abre el submenú
-    }
-  }
-
-  onSidebarItemClick(event: MouseEvent, item: RouteInfo): void {
-    if (item.submenu.length > 0) {
-      event.preventDefault(); // Evita la navegación en caso de tener un submenu
-      this.toggleSubmenu(item.title);
-    } else {
-      this.showMobileMenu = false;
-    }
-  }
-
-  onSidebarClick(event: MouseEvent): void {
-    // Obtiene el elemento que fue clicado
-    const target = event.target as HTMLElement;
-  
-    // Verifica si el clic ocurrió en un elemento que tiene un submenu
-    const hasSubmenu = target.closest('.sidebar-item')?.querySelector('.submenu') !== null;
-    
-    // Verifica si el clic ocurrió en un elemento que es parte de un dropdown
-    const isDropdownItem = target.closest('.dropdown-item') !== null;
-  
-    // Si el clic no ocurrió en un elemento con submenu y no es parte de un dropdown, cierra el sidebar
-    if (!hasSubmenu && !isDropdownItem) {
-      this.showMobileMenu = false;
-    }
-  }
-  
 }

@@ -364,3 +364,56 @@
   .maestros-grid { grid-template-columns: 1fr; }
   .modal-overlay { padding: 1rem 0.5rem; }
 }
+
+// ── Calificación en tarjeta de maestro ────────────────────────────────────
+.maestro-calificacion {
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+  flex-shrink: 0;
+
+  .cal-valor {
+    font-size: 1.1rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .cal-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #45534f;
+  }
+}
+
+// ── Promedio badge corregido ───────────────────────────────────────────────
+.promedio-badge {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.9rem 2rem;
+  border-radius: 14px;
+  margin-bottom: 1.5rem;
+
+  .promedio-valor {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .promedio-sub {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.8);
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .promedio-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.85);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 2px;
+  }
+}

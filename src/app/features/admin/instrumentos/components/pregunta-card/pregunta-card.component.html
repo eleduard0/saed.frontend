@@ -36,17 +36,27 @@
 
       <div class="opciones-header">
         <span class="opciones-label">Opciones de respuesta</span>
-        @if (pregunta.opciones.length === 0) {
-          <span class="opciones-warning">
-            <mat-icon class="warn-icon">warning_amber</mat-icon>
-            Agrega al menos una opción
-          </span>
-        }
+        <!-- Botón para restaurar opciones predeterminadas -->
+        <button
+          class="btn-reset-opciones"
+          (click)="aplicarOpcionesPredeterminadas()"
+          matTooltip="Restaurar opciones predeterminadas (Nunca → Siempre)">
+          <mat-icon>refresh</mat-icon> Restaurar predeterminadas
+        </button>
       </div>
 
-      @for (op of pregunta.opciones; let i = $index; track trackOpcion(i, op)) {
-        <div class="opcion-row">
+      @if (!pregunta.opciones || pregunta.opciones.length === 0) {
+        <div class="opciones-vacio">
+          <mat-icon>warning_amber</mat-icon>
+          <span>Sin opciones — se usarán las predeterminadas al guardar.</span>
+          <button class="btn-add-opcion" (click)="aplicarOpcionesPredeterminadas()">
+            Cargar predeterminadas
+          </button>
+        </div>
+      }
 
+     @for (op of pregunta.opciones; let i = $index; track trackOpcion(i, op)) {
+        <div class="opcion-row">
           <span class="opcion-num">{{ i + 1 }}</span>
 
           <mat-form-field appearance="outline" class="flex-1" subscriptSizing="dynamic">
@@ -56,13 +66,12 @@
 
           <mat-form-field appearance="outline" class="valor-field" subscriptSizing="dynamic">
             <mat-label>Valor</mat-label>
-<input matInput type="number" [(ngModel)]="op.valor" min="0" required />
+            <input matInput type="number" [(ngModel)]="op.valor" min="0" required />
           </mat-form-field>
 
           <button mat-icon-button class="btn-eliminar-opcion" (click)="eliminarOpcion(i)" matTooltip="Eliminar opción">
             <mat-icon>remove_circle_outline</mat-icon>
           </button>
-
         </div>
       }
 

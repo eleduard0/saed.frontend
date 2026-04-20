@@ -13,24 +13,29 @@ import { AuthService } from '../services/auth.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
+
   constructor(private authService: AuthService, private router: Router) {}
 
-  intercept(
-    req: HttpRequest<unknown>,
-    next: HttpHandler
-  ): Observable<HttpEvent<unknown>> {
-    const token = this.authService.getToken();
+  intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
 
-    // Clona la petición añadiendo el header Authorization si hay token
+    // No adjuntar token en las rutas de autenticación
+    const esRutaPublica = req.url.includes('/auth/');
+
+    // Obtener solo el string del token, no el objeto sesión completo
+    const token = esRutaPublica ? null : this.authService.getToken();
+
     const authReq = token
       ? req.clone({
-          setHeaders: { Authorization: `Bearer ${token}` },
+          setHeaders: {
+            // Bearer + espacio + token string puro
+            Authorization: `Bearer ${token}`
+          }
         })
       : req;
 
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
+        if (error.status === 401 && !esRutaPublica) {
           // Token expirado o inválido → cerrar sesión
           this.authService.logout();
         }

@@ -1,71 +1,42 @@
 import { Component, OnInit } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { ROUTES } from './menu-items';
 import { RouteInfo } from './sidebar.metadata';
-import { Router, ActivatedRoute, RouterModule } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CommonModule, NgIf } from '@angular/common';
-import { AuthService } from 'src/app/services/auth.service';
-//declare var $: any;
+import { AuthService } from 'src/app/core/services/auth.service'; // ajusta la ruta
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterModule, CommonModule, NgIf],
+  imports: [RouterModule, CommonModule],
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.scss']
+  styleUrl: './sidebar.component.scss'
 })
 export class SidebarComponent implements OnInit {
-  public sidebarnavItems: RouteInfo[] = [];
-  public showMobileMenu = false;
 
+  sidebarnavItems: RouteInfo[] = [];
   showMenu = '';
-  showSubMenu = '';
 
   constructor(
-    private modalService: NgbModal,
-    private router: Router,
-    private route: ActivatedRoute,
-    private auth: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
-  ngOnInit() {
-    //this.sidebarnavItems = ROUTES.filter((sidebarnavItem) => sidebarnavItem);
-    this.sidebarnavItems = ROUTES.filter((item) => this.hasAccess(item)); // Filtra las rutas que el usuario tiene acceso
+  ngOnInit(): void {
+    const sesion = this.authService.getSesion();
+    const rol    = sesion?.rol ?? '';
+
+    // Filtrar rutas según rol del usuario logueado
+    this.sidebarnavItems = ROUTES.filter(item =>
+      !item.role || item.role.length === 0 || item.role.includes(rol)
+    );
   }
 
-  hasAccess(item: RouteInfo): boolean {
-    if (!item.role || item.role.length === 0) {
-      return true;
-    }
-    return this.auth.hasRole(item.role);
+  toggleSubmenu(title: string): void {
+    this.showMenu = this.showMenu === title ? '' : title;
   }
 
-  addExpandClass(element: string) {
-    if (element === this.showMenu) {
-      this.showMenu = '0';
-    } else {
-      this.showMenu = element;
-    }
+  logout(): void {
+    this.authService.logout();
   }
-
-  toggleSubmenu(menuTitle: string): void {
-    if (this.showMenu === menuTitle) {
-      this.showMenu = '';
-    } else {
-      this.showMenu = menuTitle;
-    }
-  }
-
-  isSubmenuActive(menuItem: RouteInfo): boolean {
-    return this.showMenu === menuItem.title;
-  }
-
-  updateActiveMenu() {
-    this.sidebarnavItems.forEach(item => {
-      if (this.isSubmenuActive(item)) {
-        this.showMenu = item.title;
-      }
-    });
-  }
-
 }

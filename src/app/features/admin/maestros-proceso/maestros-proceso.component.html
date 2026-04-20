@@ -20,12 +20,12 @@
       <option [ngValue]="null" disabled>Selecciona un periodo…</option>
       <option *ngFor="let p of procesos" [ngValue]="p.id">
         {{ p.nombre }} · {{ periodoLabel(p.periodo) }} {{ p.anio }}
-        <span *ngIf="p.activo"> (Activo)</span>
+        <ng-container *ngIf="p.activo"> (Activo)</ng-container>
       </option>
     </select>
   </div>
 
-  <!-- ── Cargando procesos ─────────────────────────────────────── -->
+  <!-- ── Cargando ──────────────────────────────────────────────── -->
   <div class="estado-cargando" *ngIf="loading">
     <div class="spinner-ring"></div>
     <p>Cargando procesos…</p>
@@ -59,6 +59,11 @@
             <i class="bi bi-people me-1"></i>{{ m.totalEvaluaciones }} evaluaciones
           </span>
         </div>
+        <!-- Calificación visible en la tarjeta -->
+        <div class="maestro-calificacion" [style.color]="getColor(m.calificacionGlobal)">
+          <span class="cal-valor">{{ ((m.calificacionGlobal / 5) * 10).toFixed(1) }}</span>
+          <span class="cal-label">/10</span>
+        </div>
         <div class="maestro-accion">
           <i class="bi bi-file-earmark-bar-graph-fill"></i>
         </div>
@@ -83,7 +88,7 @@
           <div>
             <h4 class="reporte-nombre">{{ reporte.nombreMaestro | titlecase }}</h4>
             <span class="reporte-meta">
-              {{ reporte.nombreProceso }} ·
+              {{ nombreProceso }} ·
               {{ reporte.totalEvaluaciones }} evaluaciones
             </span>
           </div>
@@ -103,22 +108,27 @@
         </div>
 
         <!-- Promedio general -->
-        <div class="promedio-badge" [style.background]="colorPromedio">
-          <span class="promedio-valor">{{ promedioGeneral.toFixed(2) }}</span>
-          <span class="promedio-label">Promedio General</span>
+        <div class="promedio-badge" [style.background]="colorCalificacion">
+          <span class="promedio-valor">{{ calificacionEscala10.toFixed(2) }}</span>
+          <span class="promedio-sub">/ 10</span>
+          <span class="promedio-label">
+            Calificación General ({{ reporte.calificacionGlobal.toFixed(2) }}/5)
+          </span>
         </div>
 
         <!-- Preguntas -->
         <div class="preguntas-lista">
-          <div class="pregunta-reporte" *ngFor="let p of reporte.preguntas; let i = index">
+          <div class="pregunta-reporte" *ngFor="let p of reporte.porPregunta; let i = index">
             <div class="pregunta-reporte-header">
               <span class="pregunta-num">{{ i + 1 }}</span>
               <p class="pregunta-reporte-texto">{{ p.textoPregunta }}</p>
-              <span class="pregunta-promedio" [style.color]="p.promedio >= 8 ? '#01907e' : p.promedio >= 6 ? '#f59e0b' : '#e11d48'">
-                {{ p.promedio.toFixed(2) }}
+              <span
+                class="pregunta-promedio"
+                [style.color]="getColor(p.promedio)">
+                {{ calificacionPreguntaEscala10(p.promedio).toFixed(1) }}/10
               </span>
             </div>
-            <!-- Distribución -->
+            <!-- Distribución de respuestas -->
             <div class="distribucion">
               <div
                 class="dist-item"
@@ -139,7 +149,8 @@
         <!-- Comentarios -->
         <div class="comentarios-seccion" *ngIf="reporte.comentarios.length > 0">
           <h5 class="comentarios-titulo">
-            <i class="bi bi-chat-left-quote me-2"></i>Comentarios de alumnos
+            <i class="bi bi-chat-left-quote me-2"></i>
+            Comentarios ({{ reporte.comentarios.length }})
           </h5>
           <div class="comentario-item" *ngFor="let c of reporte.comentarios">
             <i class="bi bi-quote"></i>

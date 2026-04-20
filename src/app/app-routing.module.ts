@@ -59,7 +59,13 @@ export const Approutes: Routes = [
         canActivate: [AuthGuard],
         data: { roles: ['Admin'] },
       },
-
+      {
+        path: 'reportes',
+        loadComponent: () =>
+          import('./features/admin/maestros-proceso/maestros-proceso.component').then((m) => m.MaestrosProcesoComponent),
+        canActivate: [AuthGuard],
+        data: { roles: ['Admin'] }
+      },
       // Componentes → Admin y Alumno
       {
         path: 'inicio-alumno',

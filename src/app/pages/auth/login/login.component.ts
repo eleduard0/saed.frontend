@@ -20,7 +20,6 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Si ya hay sesión activa no tiene caso mostrar el login
     if (this.authService.estaAutenticado()) {
       this.redirigirSegunRol();
     }
@@ -63,7 +62,7 @@ export class LoginComponent implements OnInit {
         this.router.navigate(['/dashboard']);
         break;
       case 'Alumno':
-        this.router.navigate(['/inicio-alumno']);
+        this.router.navigate(['/inicio-alumno']); // ← ruta real
         break;
       default:
         this.router.navigate(['/login']);

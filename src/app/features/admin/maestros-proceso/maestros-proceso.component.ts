@@ -3,21 +3,22 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from 'src/app/services/api.service';
 
-interface ProcesoDto       { id: number; nombre: string; anio: number; periodo: number; activo: boolean; }
-interface ResumenMaestroDto { idMaestro: string; nombreMaestro: string; totalEvaluaciones: number; }
-interface ReportePreguntaDto {
+interface ProcesoDto         { id: number; nombre: string; anio: number; periodo: number; activo: boolean; }
+interface ResumenCalificacion { idMaestro: string; nombreMaestro: string; totalEvaluaciones: number; calificacionGlobal: number; }
+interface CalificacionPregunta {
   preguntaId: number;
   textoPregunta: string;
   promedio: number;
+  totalRespuestas: number;
   distribucion: Record<string, number>;
 }
-interface ReporteMaestroDto {
+interface CalificacionMaestro {
   idMaestro: string;
   nombreMaestro: string;
   procesoId: number;
-  nombreProceso: string;
   totalEvaluaciones: number;
-  preguntas: ReportePreguntaDto[];
+  calificacionGlobal: number;
+  porPregunta: CalificacionPregunta[];
   comentarios: string[];
 }
 
@@ -30,9 +31,10 @@ interface ReporteMaestroDto {
 })
 export class MaestrosProcesoComponent implements OnInit {
 
-  procesos:  ProcesoDto[]        = [];
-  maestros:  ResumenMaestroDto[] = [];
-  reporte:   ReporteMaestroDto | null = null;
+  procesos:  ProcesoDto[]          = [];
+  maestros:  ResumenCalificacion[] = [];
+  reporte:   CalificacionMaestro | null = null;
+  nombreProceso = '';
 
   procesoSeleccionado: number | null = null;
   loading         = false;
@@ -59,12 +61,15 @@ export class MaestrosProcesoComponent implements OnInit {
     this.maestros = [];
     this.reporte  = null;
     if (!this.procesoSeleccionado) return;
+    const p = this.procesos.find(x => x.id === this.procesoSeleccionado);
+    this.nombreProceso = p ? `${p.nombre} · ${this.periodoLabel(p.periodo)} ${p.anio}` : '';
     this.cargarMaestros(this.procesoSeleccionado);
   }
 
   cargarMaestros(procesoId: number): void {
     this.loadingMaestros = true;
-    this.api.get<ResumenMaestroDto[]>(`/evaluaciones/procesos/${procesoId}/maestros`).subscribe({
+    // Usar el endpoint de calificaciones que ya incluye la calificación global
+    this.api.get<ResumenCalificacion[]>(`/calificaciones/procesos/${procesoId}`).subscribe({
       next:  (res) => { this.maestros = res; this.loadingMaestros = false; },
       error: ()    => { this.errorMsg = 'Error al cargar maestros.'; this.loadingMaestros = false; }
     });
@@ -73,31 +78,33 @@ export class MaestrosProcesoComponent implements OnInit {
   verReporte(idMaestro: string): void {
     if (!this.procesoSeleccionado) return;
     this.loadingReporte = true;
-    this.reporte        = null;
+    this.reporte = null;
 
-    this.api.get<ReporteMaestroDto>(
-      `/evaluaciones/procesos/${this.procesoSeleccionado}/maestros/${idMaestro}/reporte`
+    this.api.get<CalificacionMaestro>(
+      `/calificaciones/procesos/${this.procesoSeleccionado}/maestros/${idMaestro}`
     ).subscribe({
       next:  (res) => { this.reporte = res; this.loadingReporte = false; },
       error: ()    => { this.errorMsg = 'Error al cargar el reporte.'; this.loadingReporte = false; }
     });
   }
 
-  cerrarReporte(): void {
-    this.reporte = null;
-  }
+  cerrarReporte(): void { this.reporte = null; }
 
-  get promedioGeneral(): number {
-    if (!this.reporte || this.reporte.preguntas.length === 0) return 0;
-    const total = this.reporte.preguntas.reduce((s, p) => s + p.promedio, 0);
-    return Math.round((total / this.reporte.preguntas.length) * 100) / 100;
-  }
+  get colorCalificacion(): string { return this.getColor(this.reporte?.calificacionGlobal ?? 0); }
 
-  get colorPromedio(): string {
-    const p = this.promedioGeneral;
-    if (p >= 8)  return '#01907e';
-    if (p >= 6)  return '#f59e0b';
+  getColor(val: number): string {
+    if (val >= 4)   return '#01907e';
+    if (val >= 3)   return '#f59e0b';
     return '#e11d48';
+  }
+
+  // Calificación en escala 0-10 para mostrar al usuario (valor máximo = 5 en escala 1-5)
+  get calificacionEscala10(): number {
+    return Math.round(((this.reporte?.calificacionGlobal ?? 0) / 5) * 10 * 100) / 100;
+  }
+
+  calificacionPreguntaEscala10(promedio: number): number {
+    return Math.round((promedio / 5) * 10 * 100) / 100;
   }
 
   distribucionEntries(dist: Record<string, number>): { key: string; value: number }[] {
@@ -105,32 +112,32 @@ export class MaestrosProcesoComponent implements OnInit {
   }
 
   periodoLabel(p: number): string {
-    return { 1: 'Sep-Dic', 2: 'Ene-Abr', 3: 'May-Ago' }[p] ?? String(p);
+    return ({ 1: 'Sep-Dic', 2: 'Ene-Abr', 3: 'May-Ago' } as any)[p] ?? String(p);
   }
 
   async exportarPdf(): Promise<void> {
     if (!this.reporte) return;
     this.generandoPdf = true;
 
-    // Importar jsPDF dinámicamente para no agregar peso al bundle principal
-    const { default: jsPDF } = await import('jspdf');
+    const { default: jsPDF }     = await import('jspdf');
     const { default: autoTable } = await import('jspdf-autotable');
 
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const doc    = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     const margen = 15;
-    let y = margen;
+    let y        = margen;
 
-    // ── Encabezado ──────────────────────────────────────────────────────────
+    // ── Encabezado ─────────────────────────────────────────────────────────
     doc.setFillColor(1, 144, 126);
-    doc.rect(0, 0, 210, 28, 'F');
+    doc.rect(0, 0, 210, 30, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('REPORTE DE EVALUACIÓN DOCENTE', 105, 12, { align: 'center' });
-    doc.setFontSize(10);
+    doc.text('REPORTE DE EVALUACIÓN DOCENTE', 105, 13, { align: 'center' });
+    doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    doc.text('Universidad Tecnológica del Sur de Sonora', 105, 20, { align: 'center' });
-    y = 35;
+    doc.text('Universidad Tecnológica del Sur de Sonora', 105, 21, { align: 'center' });
+    doc.text(this.nombreProceso, 105, 27, { align: 'center' });
+    y = 38;
 
     // ── Datos del maestro ───────────────────────────────────────────────────
     doc.setTextColor(31, 45, 41);
@@ -142,25 +149,25 @@ export class MaestrosProcesoComponent implements OnInit {
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(69, 83, 79);
-    doc.text(`Proceso: ${this.reporte.nombreProceso}`, margen, y);
-    doc.text(`Total evaluaciones: ${this.reporte.totalEvaluaciones}`, 130, y);
-    y += 5;
-    doc.text(`ID Maestro: ${this.reporte.idMaestro}`, margen, y);
-    y += 6;
+    doc.text(`ID: ${this.reporte.idMaestro}`, margen, y);
+    doc.text(`Evaluaciones recibidas: ${this.reporte.totalEvaluaciones}`, 110, y);
+    y += 8;
 
-    // ── Promedio general ────────────────────────────────────────────────────
-    const pg = this.promedioGeneral;
-    const colorR = pg >= 8 ? 1   : pg >= 6 ? 245 : 225;
-    const colorG = pg >= 8 ? 144 : pg >= 6 ? 158 :  29;
-    const colorB = pg >= 8 ? 126 : pg >= 6 ?  11 :  72;
+    // ── Calificación global ─────────────────────────────────────────────────
+    const calGlobal   = this.reporte.calificacionGlobal;
+    const calEscala10 = this.calificacionEscala10;
+    const [r, g, b]   = calGlobal >= 4 ? [1, 144, 126] : calGlobal >= 3 ? [245, 158, 11] : [225, 29, 72];
 
-    doc.setFillColor(colorR, colorG, colorB as number);
-    doc.roundedRect(margen, y, 60, 14, 3, 3, 'F');
+    doc.setFillColor(r, g, b);
+    doc.roundedRect(margen, y, 80, 16, 3, 3, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
-    doc.text(`Promedio general: ${pg.toFixed(2)}`, margen + 30, y + 9, { align: 'center' });
-    y += 20;
+    doc.text(
+      `Calificación: ${calEscala10.toFixed(2)} / 10  (${calGlobal.toFixed(2)} / 5)`,
+      margen + 40, y + 10, { align: 'center' }
+    );
+    y += 22;
 
     // ── Tabla de resultados por pregunta ────────────────────────────────────
     doc.setTextColor(31, 45, 41);
@@ -169,28 +176,28 @@ export class MaestrosProcesoComponent implements OnInit {
     doc.text('Resultados por pregunta', margen, y);
     y += 4;
 
-    const rows = this.reporte.preguntas.map((p, i) => [
+    const rows = this.reporte.porPregunta.map((p, i) => [
       `${i + 1}`,
       p.textoPregunta,
       p.promedio.toFixed(2),
-      Object.entries(p.distribucion)
-        .map(([k, v]) => `${k}: ${v}`)
-        .join(' | ')
+      `${this.calificacionPreguntaEscala10(p.promedio).toFixed(2)}/10`,
+      Object.entries(p.distribucion).map(([k, v]) => `${k}:${v}`).join(' | ')
     ]);
 
     autoTable(doc, {
       startY: y,
-      head: [['#', 'Pregunta', 'Promedio', 'Distribución']],
-      body: rows,
+      head:   [['#', 'Pregunta', 'Prom.(1-5)', 'Equiv.(10)', 'Distribución']],
+      body:   rows,
       margin: { left: margen, right: margen },
-      styles: { fontSize: 8, cellPadding: 2.5 },
+      styles: { fontSize: 7.5, cellPadding: 2.5 },
       headStyles: { fillColor: [1, 144, 126], textColor: 255, fontStyle: 'bold' },
       alternateRowStyles: { fillColor: [230, 246, 243] },
       columnStyles: {
-        0: { cellWidth: 8, halign: 'center' },
-        1: { cellWidth: 85 },
-        2: { cellWidth: 20, halign: 'center' },
-        3: { cellWidth: 57 }
+        0: { cellWidth: 8,  halign: 'center' },
+        1: { cellWidth: 78 },
+        2: { cellWidth: 18, halign: 'center' },
+        3: { cellWidth: 18, halign: 'center' },
+        4: { cellWidth: 58 }
       }
     });
 
@@ -203,16 +210,16 @@ export class MaestrosProcesoComponent implements OnInit {
       doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(31, 45, 41);
-      doc.text('Comentarios de alumnos', margen, y);
+      doc.text(`Comentarios de alumnos (${this.reporte.comentarios.length})`, margen, y);
       y += 5;
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(8);
       doc.setTextColor(69, 83, 79);
 
-      this.reporte.comentarios.forEach((comentario, idx) => {
+      this.reporte.comentarios.forEach((c, idx) => {
         if (y > 270) { doc.addPage(); y = margen; }
-        const lineas = doc.splitTextToSize(`${idx + 1}. ${comentario}`, 180);
+        const lineas = doc.splitTextToSize(`${idx + 1}. ${c}`, 180);
         doc.text(lineas, margen, y);
         y += lineas.length * 4.5 + 2;
       });
@@ -230,7 +237,7 @@ export class MaestrosProcesoComponent implements OnInit {
       );
     }
 
-    doc.save(`reporte_${this.reporte.idMaestro}_${this.reporte.procesoId}.pdf`);
+    doc.save(`reporte_${this.reporte.idMaestro}_proceso${this.reporte.procesoId}.pdf`);
     this.generandoPdf = false;
   }
 }

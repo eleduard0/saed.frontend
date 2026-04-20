@@ -14,22 +14,11 @@ import {
 export class AuthService {
   private readonly SESSION_KEY = 'saed_usuario';
 
-  // Expresión regular para detectar matrícula (ej: L12345678) o número de empleado (solo dígitos)
-  // Ajusta según el formato real de tu institución
   private readonly MATRICULA_REGEX = /^[a-zA-Z]\d{8,}$/;
-  private readonly EMPLEADO_REGEX = /^\d{6,}$/;
+  private readonly EMPLEADO_REGEX  = /^\d{6,}$/;
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router) {}
 
-  /**
-   * Determina si la credencial ingresada pertenece a un usuario
-   * institucional (alumno/empleado) o a un admin local.
-   *
-   * Reglas:
-   *  - Matrícula  → alumno  → endpoint escolar
-   *  - Número de empleado → también escolar (ajustar si tiene endpoint propio)
-   *  - Correo o username sin formato universitario → admin local
-   */
   private esUsuarioInstitucional(credencial: string): boolean {
     return (
       this.MATRICULA_REGEX.test(credencial) ||
@@ -37,10 +26,6 @@ export class AuthService {
     );
   }
 
-  /**
-   * Punto de entrada único. Detecta el tipo de usuario y delega
-   * al login correspondiente.
-   */
   login(credencial: string, password: string): Observable<any> {
     if (this.esUsuarioInstitucional(credencial)) {
       return this.loginEscolar(credencial, password);
@@ -49,9 +34,7 @@ export class AuthService {
     }
   }
 
-  // ─────────────────────────────────────────────
-  // Login Escolar  →  POST /auth/login
-  // ─────────────────────────────────────────────
+  // ── Login Escolar ─────────────────────────────────────────────────────────
   private loginEscolar(username: string, password: string): Observable<LoginResponseDto> {
     return this.http
       .post<LoginResponseDto>(`${environment.apiUrl}/auth/login-universidad`, { username, password })
@@ -59,9 +42,9 @@ export class AuthService {
         tap((res) => {
           const sesion: UsuarioSesion = {
             username: res.matricula,
-            nombre: res.nombre,
-            rol: res.rol as 'Alumno',
-            token: res.token,
+            nombre:   res.nombre,
+            rol:      res.rol as 'Alumno',
+            token:    res.token,
           };
           this.guardarSesion(sesion);
         }),
@@ -71,31 +54,32 @@ export class AuthService {
       );
   }
 
-  // ─────────────────────────────────────────────
-  // Login Admin  →  POST /auth/admin/login
-  // El backend devuelve solo el token como string
-  // ─────────────────────────────────────────────
-  private loginAdmin(username: string, password: string): Observable<string> {
+  // ── Login Admin ───────────────────────────────────────────────────────────
+  // El backend devuelve { "token": "eyJ..." } como JSON
+  private loginAdmin(username: string, password: string): Observable<any> {
     return this.http
-      .post(`${environment.apiUrl}/admin/auth/login`, { username, password }, { responseType: 'text' })
+      .post<{ token: string }>(`${environment.apiUrl}/admin/auth/login`, { username, password })
       .pipe(
-        tap((token) => {
+        tap((res) => {
+          // res es { token: "eyJ..." } — extraer solo el string
+          const tokenString = typeof res === 'string'
+            ? (res as string).replace(/^"|"$/g, '')  // si llegó como string puro
+            : res.token;                              // si llegó como objeto JSON
+
           const sesion: UsuarioSesion = {
             username,
-            rol: 'Admin',
-            token,
+            rol:   'Admin',
+            token: tokenString,
           };
           this.guardarSesion(sesion);
         }),
         catchError((err) =>
-          throwError(() => new Error(err?.error ?? 'Credenciales incorrectas'))
+          throwError(() => new Error(err?.error?.message ?? err?.error ?? 'Credenciales incorrectas'))
         )
       );
   }
 
-  // ─────────────────────────────────────────────
-  // Helpers de sesión
-  // ─────────────────────────────────────────────
+  // ── Helpers de sesión ─────────────────────────────────────────────────────
   private guardarSesion(sesion: UsuarioSesion): void {
     localStorage.setItem(this.SESSION_KEY, JSON.stringify(sesion));
   }
@@ -105,7 +89,7 @@ export class AuthService {
       const raw = localStorage.getItem(this.SESSION_KEY);
       return raw ? JSON.parse(raw) : null;
     } catch {
-      localStorage.removeItem(this.SESSION_KEY); // limpiar si está corrupto
+      localStorage.removeItem(this.SESSION_KEY);
       return null;
     }
   }
@@ -124,6 +108,11 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem(this.SESSION_KEY);
-    this.router.navigate(['/auth/login']);
+    this.router.navigate(['/login']);
+  }
+
+  hasRole(roles: string[]): boolean {
+    const sesion = this.getSesion();
+    return roles.includes(sesion?.rol ?? '');
   }
 }
