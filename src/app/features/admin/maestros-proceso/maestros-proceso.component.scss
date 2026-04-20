@@ -417,3 +417,78 @@
     margin-top: 2px;
   }
 }
+
+// ── Pestañas de materias ──────────────────────────────────────────────────
+.materias-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e6f6f3;
+}
+
+.materia-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0.5rem 0.9rem;
+  border-radius: 10px;
+  border: 1.5px solid #b2d8d2;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  min-width: 140px;
+
+  &:hover { border-color: #01907e; background: rgba(1,144,126,0.04); }
+
+  &.active {
+    background: #01907e;
+    border-color: #01907e;
+
+    .tab-materia, .tab-grupo { color: #fff; }
+    .tab-cal { color: rgba(255,255,255,0.9) !important; }
+  }
+}
+
+.tab-materia {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #1f2d29;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+
+.tab-grupo {
+  font-size: 0.7rem;
+  color: #45534f;
+}
+
+.tab-cal {
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+// ── Banner info de materia ────────────────────────────────────────────────
+.materia-info-banner {
+  display: flex;
+  align-items: center;
+  background: #e6f6f3;
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: #1f2d29;
+}
+
+.badge-cal-mat {
+  margin-left: auto;
+  color: #fff;
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
