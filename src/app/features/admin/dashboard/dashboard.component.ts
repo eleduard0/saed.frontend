@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ProcesoService } from 'src/app/core/services/proceso.service';
-import { ApiService } from 'src/app/services/api.service';
+import { ApiService } from 'src/app/core/services/api.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 

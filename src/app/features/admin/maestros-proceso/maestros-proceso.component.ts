@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from 'src/app/services/api.service';
+import { ApiService } from 'src/app/core/services/api.service';
 
 interface ProcesoDto           { id: number; nombre: string; anio: number; periodo: number; activo: boolean; }
 interface ResumenCalificacion  { idMaestro: string; nombreMaestro: string; totalEvaluaciones: number; calificacionGlobal: number; totalMaterias: number; }

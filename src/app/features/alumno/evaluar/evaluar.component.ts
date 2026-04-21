@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from 'src/app/services/api.service';
+import { ApiService } from 'src/app/core/services/api.service';
 import {
   EvaluacionService,
   EvaluacionDisponibleDto,
