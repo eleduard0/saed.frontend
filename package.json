@@ -1,8 +1,7 @@
 {
   "name": "frontend",
   "version": "1.0.0",
-  "author": "LT Soluciones Tecnológicas",
-  "website": "https://ltsoluciones.com.mx",
+
   "private": true,
   "scripts": {
     "ng": "ng",

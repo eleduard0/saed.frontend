@@ -5,7 +5,6 @@ import { LogoutComponent } from './pages/auth/logout/logout.component';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
 import { AuthGuard } from './guards/auth.guard';
 
-import { PreguntasComponent } from './component/alumno/preguntas/preguntas.component';
 
 export const Approutes: Routes = [
   // ─── Rutas públicas ────────────────────────────────────────────────────────
@@ -82,14 +81,6 @@ export const Approutes: Routes = [
         data: { roles: ['Alumno'] },
       },
 
-
-      // Evaluación docente
-      {
-        path: 'preguntas/:grupo/:materia',
-        component: PreguntasComponent,
-        canActivate: [AuthGuard],
-        data: { roles: ['Alumno'] },
-      },
     ],
   },
 

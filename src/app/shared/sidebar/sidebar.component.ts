@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ROUTES } from './menu-items';
 import { RouteInfo } from './sidebar.metadata';
-import { AuthService } from 'src/app/core/services/auth.service'; // ajusta la ruta
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -15,21 +15,25 @@ import { AuthService } from 'src/app/core/services/auth.service'; // ajusta la r
 export class SidebarComponent implements OnInit {
 
   sidebarnavItems: RouteInfo[] = [];
-  showMenu = '';
+  showMenu    = '';
+  sidebarOpen = false; // false = cerrado en mobile
 
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
     const sesion = this.authService.getSesion();
     const rol    = sesion?.rol ?? '';
-
-    // Filtrar rutas según rol del usuario logueado
     this.sidebarnavItems = ROUTES.filter(item =>
       !item.role || item.role.length === 0 || item.role.includes(rol)
     );
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 
   toggleSubmenu(title: string): void {
@@ -38,5 +42,14 @@ export class SidebarComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+    this.closeSidebar();
+  }
+
+  // Cerrar sidebar al redimensionar a desktop
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event): void {
+    if ((event.target as Window).innerWidth > 768) {
+      this.sidebarOpen = false;
+    }
   }
 }
